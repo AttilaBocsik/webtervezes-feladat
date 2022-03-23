@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="css/styles.css"/>
+    <style>
+        @media print {
+            body {
+                background-color: white;
+                color: black;
+                font-family: serif;
+            }
+
+            header, nav, aside {
+                display: none
+            }
+
+            .advertisements-layer {
+                display: none
+            }
+
+            .leftcolumn {
+                width: 100%;
+            }
+        }
+    </style>
+    <title>Főoldal | Autókereskedés</title>
+</head>
+<body>
+<main>
+    <header class="header">
+        <div class="slide-container">
+            <span id="slider-image-1"></span>
+            <span id="slider-image-2"></span>
+            <span id="slider-image-3"></span>
+            <div class="image-container">
+                <img src="img/slider-cars.jpg" alt="Cars" class="slider-image"/>
+                <img src="img/slider-opel.jpg" alt="Opel" class="slider-image"/>
+                <img src="img/slider-renault.jpg" alt="Renault" class="slider-image"/>
+            </div>
+            <div class="button-container">
+                <a href="#slider-image-1" class="slider-button"></a>
+                <a href="#slider-image-2" class="slider-button"></a>
+                <a href="#slider-image-3" class="slider-button"></a>
+            </div>
+        </div>
+    </header>
+    <!-- Navigation Bar -->
+    <nav id="menu">
+        <ul>
+            <li><a class="current" href="index.html">Főoldal</a></li>
+            <li><a href="pages/content1.html">Renault autók</a></li>
+            <li><a href="pages/content2.html">Opel autók</a></li>
+            <li><a href="pages/login.html">Bejelentkezés</a></li>
+            <li><a href="pages/register.html">Regisztráció</a></li>
+        </ul>
+    </nav>
+    <div class="row">
+        <article class="leftcolumn">
+            <div class="card-title">
+                <h1>Használt autókereskedés</h1>
+            </div>
+            <article class="card-article">
+                <h2>Tisztelt látogató!</h2>
+                <p>
+                    <strong>Üdvözöljük oldalunkon.</strong> Az oldalon használt autó adás-vétele lehetséges.<br>
+                    Kereskedésünk kizárólag Renault és Opel típusú személyautókkal foglalkozik.<br>
+                    Az oldal használatához regisztráció szükséges. <span class="important-highlight">A felhasználói adatokat bizalmasan kezeljük és
+                    harmadik fél részére nem szolgáltatjuk ki.</span>
+                </p>
+            </article>
+            <article class="card-article">
+                <h2>Elérhetőségünk:</h2>
+                <hr>
+                <address>
+                    Email: <a href="mailto:hasznaltauttokereskedes@gmail.hu">hasznaltauttokereskedes@gmail.hu</a>.<br>
+                    Telefonszám: 06 70/456-2556<br>
+                    Címünk:<br>
+                    Béla király út. 144.<br>
+                    1083, Budapest
+                </address>
+            </article>
+        </article>
+        <aside class="rightcolumn">
+            <h2 style="text-align: center; color: #ddd">Ajánlott tesztek</h2>
+            <div class="card-aside">
+                <video width="300" height="200" controls>
+                    <source src="media/renault_kadjar.mp4" type="video/mp4">
+                </video>
+            </div>
+
+            <h2 style="text-align: center; color: #ddd">Kiemelt ajánlataink</h2>
+            <div class="card-aside flip-box">
+                <div class="flip-box-inner">
+                    <div class="flip-box-front">
+                        <img class="card-aside-image" src="img/renault_kadjar_13.jpg" alt="Renault Kadjar">
+                    </div>
+                    <div class="flip-box-back">
+                        <h2>Renault Kadjar</h2>
+                        <p>Évjárat: 2021/03</p>
+                        <p>Kivitel: Városi terepjáró</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+    <div class="row advertisements-layer">
+        <article class="flex-container">
+            <h3>Kiemelt hirdetések</h3>
+            <img class="advertisements-layer-image" src="img/hirdetes_1.jpg" alt="Hírdetés">
+            <img class="advertisements-layer-image" src="img/hirdetes_2.jpg" alt="Hírdetés">
+            <img class="advertisements-layer-image" src="img/hirdetes_3.jpg" alt="Hírdetés">
+            <h3>Kiemelt hirdetések</h3>
+        </article>
+    </div>
+    <footer class="footer">
+        <p>&copy; Autókereskedés 2022 | Minden jog fenntartva.
+        </p>
+    </footer>
+</main>
+
+</body>
+</html>

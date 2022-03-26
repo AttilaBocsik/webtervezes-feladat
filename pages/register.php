@@ -1,3 +1,11 @@
+<?php
+// POST paraméterek lekérése
+    if (isset($_POST['fname'])) {
+        // a paraméter létezik
+        $vezetek_nev = $_POST['fname'];
+    }
+
+?>
 <!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -33,7 +41,7 @@
             <li><a href="content1.html">Renault autók</a></li>
             <li><a href="content2.html">Opel autók</a></li>
             <li><a href="login.html">Bejelentkezés</a></li>
-            <li><a class="current" href="register.html">Regisztráció</a></li>
+            <li><a class="current" href="register.php">Regisztráció</a></li>
         </ul>
     </nav>
     <article>
@@ -42,7 +50,7 @@
         </div>
         <article class="form-container">
             <h2>Regisztráció</h2>
-            <form action="#">
+            <form method="post" action="register.php" enctype="multipart/form-data">
                 <div class="form-row">
                     <div class="form-col-25">
                         <label for="fname">Vezetéknév:</label>

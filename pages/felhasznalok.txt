@@ -1,0 +1,2 @@
+a:7:{s:9:"firstname";s:6:"Bocsik";s:8:"lastname";s:6:"Attila";s:5:"email";s:24:"bocsik.attila@outlook.hu";s:8:"language";s:6:"Magyar";s:8:"password";s:14:"Thomassen1957*";s:3:"age";s:2:"18";s:11:"registerday";s:10:"2022-04-02";}
+

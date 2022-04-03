@@ -26,6 +26,9 @@ include("../scripts/User.php");
 $user = new User();
 include("../scripts/Encryption.php");
 $encryption = new Encryption();
+include("../scripts/Validation.php");
+$valid = new Validation();
+session_start();
 //enctype="multipart/form-data"
 $errorMessageFname = $errorMessageLname = "";
 $emailErr = $fav_languageErr = $passwordErr = $ageErr = $registerdayErr = "";
@@ -35,38 +38,12 @@ $responseAddUser = false;
 $responseIsEmailUsers = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
-    function test_input($data)
-    {
-        $data = trim($data); //felesleges karakterek eltávolítása
-        $data = stripslashes($data); //fordított perjeleket (\) eltávolítja a felhasználói bemeneti adatokból
-        $data = htmlspecialchars($data);
-        return $data;
-    }
-
-    function password_validation($pwd, $pwd2)
-    {
-        if ($pwd != $pwd2) return false;
-        $number = preg_match('@[0-9]@', $pwd);
-        $uppercase = preg_match('@[A-Z]@', $pwd);
-        $lowercase = preg_match('@[a-z]@', $pwd);
-        $specialChars = preg_match('@[^\w]@', $pwd);
-        $number2 = preg_match('@[0-9]@', $pwd2);
-        $uppercase2 = preg_match('@[A-Z]@', $pwd2);
-        $lowercase2 = preg_match('@[a-z]@', $pwd2);
-        $specialChars2 = preg_match('@[^\w]@', $pwd2);
-        if (strlen($pwd) < 8 || !$number || !$uppercase || !$lowercase || !$specialChars || strlen($pwd2) < 8
-            || !$number2 || !$uppercase2 || !$lowercase2 || !$specialChars2) {
-            return false;
-        } else {
-            return true;
-        }
-    }
 
     //firstname
     if (empty($_POST["fname"])) {
         $errorMessageFname = "A vezetéknév megadása kötelező !";
     } else {
-        $vezetek_nev = test_input($_POST["fname"]);
+        $vezetek_nev = $valid->test_input($_POST["fname"]);
         if (!preg_match("/^[a-zA-Z-' ]*$/", $vezetek_nev)) {
             $errorMessageFname = "Csak betűk és szóközök megengedettek !";
         }
@@ -76,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
     if (empty($_POST["lname"])) {
         $errorMessageLname = "A keresztnév megadása kötelező !";
     } else {
-        $kereszt_nev = test_input($_POST["lname"]);
+        $kereszt_nev = $valid->test_input($_POST["lname"]);
         if (!preg_match("/^[a-zA-Z-' ]*$/", $kereszt_nev)) {
             $errorMessageLname = "Csak betűk és szóközök megengedettek !";
         }
@@ -85,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
     if (empty($_POST["email"])) {
         $emailErr = "E-mail megadása kötelező !";
     } else {
-        $email = test_input($_POST["email"]);
+        $email = $valid->test_input($_POST["email"]);
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $emailErr = "Érvénytelen e-mail formátum !";
         }
@@ -95,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
     if (empty($_POST["age"])) {
         $ageErr = "Életkor megadása kötelező !";
     } else {
-        $age = test_input($_POST["age"]);
+        $age = $valid->test_input($_POST["age"]);
         if (!preg_match('@[0-9]@', $age)) {
             $ageErr = "Érvénytelen életkor formátum !";
         }
@@ -105,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
     if (empty($_POST["registerday"])) {
         $registerdayErr = "Dátum megadása kötelező !";
     } else {
-        $registerday = test_input($_POST["registerday"]);
+        $registerday = $valid->test_input($_POST["registerday"]);
         if (!preg_match("/^[0-9-. ]*$/", $registerday)) {
             $registerdayErr = "Érvénytelen dátum formátum !";
         }
@@ -115,14 +92,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
     if (empty($_POST["fav_language"])) {
         $fav_languageErr = "Az állampolgárság kötelező !";
     } else {
-        $fav_language = test_input($_POST["fav_language"]);
+        $fav_language = $valid->test_input($_POST["fav_language"]);
     }
 
     //passwords
     if (empty($_POST["pwd"]) && empty($_POST["pwd2"])) {
         $passwordErr = "A jelszavak megadása kötelező !";
     } else {
-        if (!(password_validation($_POST["pwd"], $_POST["pwd2"]))) {
+        if (!($valid->password_validation($_POST["pwd"], $_POST["pwd2"]))) {
             $passwordErr = "A jelszónak legalább 8 karakter hosszúságúnak kell lennie, és tartalmaznia kell legalább egy számot, egy nagybetűt, egy kisbetűt és egy speciális karaktert.";
         } else {
             $pwd = $_POST["pwd"];
@@ -146,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
         ];
 
         $responseIsEmailUsers = $user->isEmailUsers($email);
-        if(!$responseIsEmailUsers){
+        if (!$responseIsEmailUsers) {
             $responseAddUser = $user->addUser($uj_felhasznalo);
             $vezetek_nev = $kereszt_nev = $email = $fav_language = $pwd = $pwd2 = $age = $registerday = $img_name = "";
         } else {
@@ -202,10 +179,16 @@ if (isset($_POST["img_submit"])) {
     <!-- Navigation Bar -->
     <nav id="menu">
         <ul>
-            <li><a href="../index.html">Főoldal</a></li>
-            <li><a href="content1.html">Renault autók</a></li>
-            <li><a href="content2.html">Opel autók</a></li>
-            <li><a href="login.html">Bejelentkezés</a></li>
+            <li><a href="../index.php">Főoldal</a></li>
+            <li><a href="<?php if (isset($_SESSION["userid"])) { ?>content1.php<?php } else { ?>login.php<?php } ?>">
+                    Renault autók
+                </a>
+            </li>
+            <li><a href="<?php if (isset($_SESSION["userid"])) { ?>content2.php<?php } else { ?>login.php<?php } ?>">
+                    Opel autók
+                </a>
+            </li>
+            <li><a href="login.php">Bejelentkezés</a></li>
             <li><a class="current" href="register.php">Regisztráció</a></li>
         </ul>
     </nav>

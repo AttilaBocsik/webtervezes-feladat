@@ -25,10 +25,25 @@
                 width: 100%;
             }
         }
+
+        .flex-container > p {
+            margin-top: auto;
+            margin-bottom: auto;
+            margin-left: 10px;
+            margin-right: 10px;
+            color: yellow;
+        }
     </style>
     <title>Főoldal | Autókereskedés</title>
 </head>
 <body>
+<?php
+session_start();
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
+    session_unset();
+    session_destroy();
+}
+?>
 <main>
     <header class="header">
         <div class="slide-container">
@@ -50,13 +65,35 @@
     <!-- Navigation Bar -->
     <nav id="menu">
         <ul>
-            <li><a class="current" href="index.html">Főoldal</a></li>
-            <li><a href="pages/content1.html">Renault autók</a></li>
-            <li><a href="pages/content2.html">Opel autók</a></li>
-            <li><a href="pages/login.html">Bejelentkezés</a></li>
+            <li><a class="current" href="index.php">Főoldal</a></li>
+            <li><a href="<?php if (isset($_SESSION["userid"])) { ?>pages/content1.php<?php } else { ?>pages/login.php<?php } ?>">
+                    Renault autók
+                </a>
+            </li>
+            <li><a href="<?php if (isset($_SESSION["userid"])) { ?>pages/content2.php<?php } else { ?>pages/login.php<?php } ?>">
+                    Opel autók
+                </a>
+            </li>
+            <li><a href="pages/login.php">Bejelentkezés</a></li>
             <li><a href="pages/register.php">Regisztráció</a></li>
         </ul>
     </nav>
+    <?php if (isset($_SESSION["userid"])) { ?>
+        <div class="row advertisements-layer">
+            <article class="flex-container">
+                <p>Belépve mint: <strong><?php echo $_SESSION["userid"]; ?></strong></p>
+                <?php if (isset($_SESSION["userid"])) { ?>
+                    <p>Belépés ideje: <?php echo date('Y-m-d H:i:s', $_SESSION['time']); ?></p>
+                <?php } ?>
+                <div>
+                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
+                          enctype="multipart/form-data">
+                        <input type="submit" value="Kilépés" name="signout_submit">
+                    </form>
+                </div>
+            </article>
+        </div>
+    <?php } ?>
     <div class="row">
         <article class="leftcolumn">
             <div class="card-title">

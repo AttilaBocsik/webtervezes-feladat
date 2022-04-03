@@ -18,14 +18,6 @@
             padding: 6px;
             margin: 2px;
         }
-
-        .flex-container > p {
-            margin-top: auto;
-            margin-bottom: auto;
-            margin-left: 10px;
-            margin-right: 10px;
-            color: yellow;
-        }
     </style>
 </head>
 <body>

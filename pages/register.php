@@ -31,8 +31,10 @@ $valid = new Validation();
 session_start();
 //enctype="multipart/form-data"
 $errorMessageFname = $errorMessageLname = "";
-$emailErr = $fav_languageErr = $passwordErr = $ageErr = $registerdayErr = "";
+$emailErr = $fav_languageErr = $passwordErr = $ageErr = $registerdayErr = $fav_roleErr = "";
 $vezetek_nev = $kereszt_nev = $email = $fav_language = $pwd = $pwd2 = $age = $registerday = $img_name = "";
+$role = "Felhasználó";
+$allowed = true;
 $emailMessage = "";
 $responseAddUser = false;
 $responseIsEmailUsers = "";
@@ -95,6 +97,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
         $fav_language = $valid->test_input($_POST["fav_language"]);
     }
 
+    //fav. role
+    if (empty($_POST["fav_role"])) {
+        $fav_roleErr = "Az jogosultság megadása kötelező !";
+    } else {
+        $fav_role = $valid->test_input($_POST["fav_role"]);
+    }
+
     //passwords
     if (empty($_POST["pwd"]) && empty($_POST["pwd2"])) {
         $passwordErr = "A jelszavak megadása kötelező !";
@@ -109,7 +118,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
 
     //save
     $emailMessage = "";
-    if ($errorMessageFname == "" && $errorMessageLname == "" && $emailErr == "" && $fav_languageErr == "" && $passwordErr == "" && $ageErr == "" && $registerdayErr == "") {
+    if ($errorMessageFname == "" && $errorMessageLname == "" && $emailErr == "" && $fav_languageErr == ""
+        && $passwordErr == "" && $ageErr == "" && $registerdayErr == "" && $fav_roleErr == "") {
         $hash = $encryption->pass_hash($pwd);
         $uj_felhasznalo = [
             "firstname" => $vezetek_nev,
@@ -119,17 +129,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
             "password" => $hash,
             "age" => $age,
             "registerday" => $registerday,
-            "img" => $img_name
+            "img" => $img_name,
+            "role" => $role,
+            "allowed" => $allowed
         ];
 
         $responseIsEmailUsers = $user->isEmailUsers($email);
         if (!$responseIsEmailUsers) {
             $responseAddUser = $user->addUser($uj_felhasznalo);
-            $vezetek_nev = $kereszt_nev = $email = $fav_language = $pwd = $pwd2 = $age = $registerday = $img_name = "";
+            $vezetek_nev = $kereszt_nev = $email = $fav_language = $pwd = $pwd2 =
+            $age = $registerday = $img_name = "";
+            $role = "Felhasználó";
+            $allowed = true;
         } else {
             $emailMessage = "Az email cím már létezik!";
         }
     }
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
+    session_unset();
+    session_destroy();
 }
 ?>
 <?php
@@ -192,6 +212,22 @@ if (isset($_POST["img_submit"])) {
             <li><a class="current" href="register.php">Regisztráció</a></li>
         </ul>
     </nav>
+    <?php if (isset($_SESSION["userid"])) { ?>
+        <div class="row advertisements-layer">
+            <article class="flex-container">
+                <p>Belépve mint: <strong><?php echo $_SESSION["userid"]; ?></strong></p>
+                <?php if (isset($_SESSION["userid"])) { ?>
+                    <p>Belépés ideje: <?php echo date('Y-m-d H:i:s', $_SESSION['time']); ?></p>
+                <?php } ?>
+                <div>
+                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
+                          enctype="multipart/form-data">
+                        <input type="submit" value="Kilépés" name="signout_submit">
+                    </form>
+                </div>
+            </article>
+        </div>
+    <?php } ?>
     <article>
         <div class="card-title">
             <h1>Használt autókereskedés</h1>
@@ -315,6 +351,27 @@ if (isset($_POST["img_submit"])) {
                         <?php } ?>
                     </div>
                 </div>
+                <!-- Role -->
+                <?php if (isset($_SESSION["userid"])) { ?>
+                    <div class="form-row">
+                        <div style="width: 60%; margin-left: auto; margin-right: auto;">
+                            <fieldset>
+                                <legend>Jogosultság</legend>
+                                <input type="radio" id="admin" name="fav_role"
+                                       value="Admin" <?php if (isset($fav_role) && $fav_role == "Admin") echo "checked"; ?>>
+                                <label for="admin">Admin</label><br>
+                                <input type="radio" id="user" name="fav_role"
+                                       value="Felhasználó" <?php if (isset($fav_role) && $fav_role == "Felhasználó") echo "checked"; ?>>
+                                <label for="user">Felhasználó</label><br>
+                            </fieldset>
+                            <?php if ($fav_roleErr) { ?>
+                                <div class="error-message">
+                                    <?php echo $fav_roleErr; ?>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    </div>
+                <?php } ?>
                 <br>
                 <div class="form-row">
                     <input type="submit" value="Regisztráció" name="form_submit">

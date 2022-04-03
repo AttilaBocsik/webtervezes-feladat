@@ -15,7 +15,7 @@ class User
      * @return boolean
      * @name("addUser")
      */
-    function addUser($input)
+    public function addUser($input)
     {
         $felhasznalok = $this->readUsers();
         $felhasznalokBeforeCount = count($felhasznalok);
@@ -25,6 +25,30 @@ class User
         return ($felhasznalokAfterCount > $felhasznalokBeforeCount) ? true : false;
     }
 
+    /**
+     * DocBlock
+     * @param $email
+     * @return boolean
+     * @name("removeUser")
+     */
+    public function removeUser($email)
+    {
+        $nemtorolt_felhasznalok = [];
+        $felhasznalok = $this->readUsers();
+        $felhasznalokBeforeCount = count($felhasznalok);
+        foreach ($felhasznalok as $felhasznalo) {
+            if (array_key_exists("email", $felhasznalo)) {
+                $key = array_search($email, $felhasznalo);
+                if ($key !== "email") {
+                    array_push($nemtorolt_felhasznalok, $felhasznalo);
+                }
+            }
+        }
+        $felhasznalokAfterCount = count($nemtorolt_felhasznalok);
+        $this->writingUsers($nemtorolt_felhasznalok);
+        return ($felhasznalokAfterCount < $felhasznalokBeforeCount) ? true : false;
+    }
+
 
     /**
      * DocBlock
@@ -32,7 +56,7 @@ class User
      * @return boolean
      * @name("isEmailUsers")
      */
-    function isEmailUsers($email)
+    public function isEmailUsers($email)
     {
         $res = "";
         $felhasznalok = $this->readUsers();
@@ -54,7 +78,7 @@ class User
      * @return string
      * @name("getPasswordUsers")
      */
-    function getPasswordUsers($email)
+    public function getPasswordUsers($email)
     {
         $felhasznalok = $this->readUsers();
         foreach ($felhasznalok as $felhasznalo) {
@@ -74,7 +98,7 @@ class User
      * @return User || NULL
      * @name("getOneUsers")
      */
-    function getOneUsers($email)
+    public function getOneUsers($email)
     {
         $felhasznalok = $this->readUsers();
         foreach ($felhasznalok as $felhasznalo) {
@@ -93,7 +117,7 @@ class User
      * @return array
      * @name("readUsers")
      */
-    function readUsers()
+    public function readUsers()
     {
         $file = fopen($this->filename, "r");
         $felhasznalok = [];
@@ -109,7 +133,7 @@ class User
      * @return void
      * @name("writingUsers")
      */
-    function writingUsers($felhasznalok)
+    public function writingUsers($felhasznalok)
     {
         // Felhasználók kiírása fájlba
         $file = fopen($this->filename, "w");

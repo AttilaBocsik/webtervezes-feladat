@@ -24,10 +24,12 @@
 <?php
 include("../scripts/User.php");
 $user = new User();
+include("../scripts/Encryption.php");
+$encryption = new Encryption();
 //enctype="multipart/form-data"
 $errorMessageFname = $errorMessageLname = "";
 $emailErr = $fav_languageErr = $passwordErr = $ageErr = $registerdayErr = "";
-$vezetek_nev = $kereszt_nev = $email = $fav_language = $pwd = $pwd2 = $age = $registerday = "";
+$vezetek_nev = $kereszt_nev = $email = $fav_language = $pwd = $pwd2 = $age = $registerday = $img_name = "";
 $emailMessage = "";
 $responseAddUser = false;
 $responseIsEmailUsers = "";
@@ -131,24 +133,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
     //save
     $emailMessage = "";
     if ($errorMessageFname == "" && $errorMessageLname == "" && $emailErr == "" && $fav_languageErr == "" && $passwordErr == "" && $ageErr == "" && $registerdayErr == "") {
+        $hash = $encryption->pass_hash($pwd);
         $uj_felhasznalo = [
             "firstname" => $vezetek_nev,
             "lastname" => $kereszt_nev,
             "email" => $email,
             "language" => $fav_language,
-            "password" => $pwd,
+            "password" => $hash,
             "age" => $age,
-            "registerday" => $registerday
+            "registerday" => $registerday,
+            "img" => $img_name
         ];
 
         $responseIsEmailUsers = $user->isEmailUsers($email);
-        /*
         if(!$responseIsEmailUsers){
             $responseAddUser = $user->addUser($uj_felhasznalo);
-            $vezetek_nev = $kereszt_nev = $email = $fav_language = $pwd = $pwd2 = $age = $registerday = "";
+            $vezetek_nev = $kereszt_nev = $email = $fav_language = $pwd = $pwd2 = $age = $registerday = $img_name = "";
         } else {
             $emailMessage = "Az email cím már létezik!";
-        }*/
+        }
     }
 }
 ?>
@@ -367,9 +370,7 @@ if (isset($_POST["img_submit"])) {
     <footer class="footer">
         <p>&copy; Autókereskedés 2022 | Minden jog fenntartva.
         </p>
-        <?php if ($responseIsEmailUsers) { ?>
-            <?php var_dump($responseIsEmailUsers); ?>
-        <?php } ?>
+        <p><?php echo json_encode($responseIsEmailUsers) ?></p>
     </footer>
 </main>
 

@@ -9,25 +9,9 @@ class User
         $this->filename = "felhasznalok.txt";
     }
 
-    function isOnyUser($input)
-    {
-        $file = fopen($this->filename, "r");
-        $felhasznalok = [];
-        while (($line = fgets($file)) !== false) {
-            $felhasznalok[] = unserialize($line);
-        }
-        fclose($file);
-        foreach ($felhasznalok as $felhasznalo) {
-            if ($felhasznalo["email"] == $input) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
-
     /**
      * DocBlock
+     * @param $input
      * @return boolean
      * @name("addUser")
      */
@@ -41,20 +25,67 @@ class User
         return ($felhasznalokAfterCount > $felhasznalokBeforeCount) ? true : false;
     }
 
+
     /**
      * DocBlock
+     * @param $email
      * @return boolean
      * @name("isEmailUsers")
      */
     function isEmailUsers($email)
     {
+        $res = "";
         $felhasznalok = $this->readUsers();
         foreach ($felhasznalok as $felhasznalo) {
-            $res = array_search($email, $felhasznalo);
-            //return ()
+            if (array_key_exists("email", $felhasznalo)) {
+                $res = array_search($email, $felhasznalo);
+            }
         }
+        if ($res != null && $res === "email") {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-        return $res;
+    /**
+     * DocBlock
+     * @param $email
+     * @return string
+     * @name("getPasswordUsers")
+     */
+    function getPasswordUsers($email)
+    {
+        $felhasznalok = $this->readUsers();
+        foreach ($felhasznalok as $felhasznalo) {
+            if (array_key_exists("email", $felhasznalo)) {
+                $key = array_search($email, $felhasznalo);
+                if ($key === "email") {
+                    return $felhasznalo["password"];
+                }
+            }
+        }
+        return "";
+    }
+
+    /**
+     * DocBlock
+     * @param $email
+     * @return User || NULL
+     * @name("getOneUsers")
+     */
+    function getOneUsers($email)
+    {
+        $felhasznalok = $this->readUsers();
+        foreach ($felhasznalok as $felhasznalo) {
+            if (array_key_exists("email", $felhasznalo)) {
+                $key = array_search($email, $felhasznalo);
+                if ($key === "email") {
+                    return $felhasznalo;
+                }
+            }
+        }
+        return null;
     }
 
     /**

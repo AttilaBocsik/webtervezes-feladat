@@ -33,8 +33,8 @@ session_start();
 $errorMessageFname = $errorMessageLname = "";
 $emailErr = $fav_languageErr = $passwordErr = $ageErr = $registerdayErr = $fav_roleErr = "";
 $vezetek_nev = $kereszt_nev = $email = $fav_language = $pwd = $pwd2 = $age = $registerday = $img_name = "";
-$role = "Felhasználó";
-$allowed = true;
+$fav_role = ""; // szerepkor
+$allowed = "true"; // a felhasznalo engedelyezett
 $emailMessage = "";
 $responseAddUser = false;
 $responseIsEmailUsers = "";
@@ -99,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
 
     //fav. role
     if (empty($_POST["fav_role"])) {
-        $fav_roleErr = "Az jogosultság megadása kötelező !";
+        $fav_roleErr = "A jogosultság megadása kötelező !";
     } else {
         $fav_role = $valid->test_input($_POST["fav_role"]);
     }
@@ -130,7 +130,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
             "age" => $age,
             "registerday" => $registerday,
             "img" => $img_name,
-            "role" => $role,
+            "role" => $fav_role,
             "allowed" => $allowed
         ];
 
@@ -139,8 +139,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
             $responseAddUser = $user->addUser($uj_felhasznalo);
             $vezetek_nev = $kereszt_nev = $email = $fav_language = $pwd = $pwd2 =
             $age = $registerday = $img_name = "";
-            $role = "Felhasználó";
-            $allowed = true;
+            $fav_role = "";
+            $allowed = "true";
         } else {
             $emailMessage = "Az email cím már létezik!";
         }
@@ -238,6 +238,7 @@ if (isset($_POST["img_submit"])) {
             ahelyett, hogy egy másik oldalra ugorna.
             Így a felhasználó ugyanazon az oldalon kap hibaüzeneteket, mint az űrlap. -->
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                <!-- First name -->
                 <div class="form-row">
                     <div class="form-col-25">
                         <label for="fname">Vezetéknév:</label>
@@ -251,6 +252,7 @@ if (isset($_POST["img_submit"])) {
                         <?php } ?>
                     </div>
                 </div>
+                <!-- Last name -->
                 <div class="form-row">
                     <div class="form-col-25">
                         <label for="lname">Keresztnév:</label>
@@ -264,6 +266,10 @@ if (isset($_POST["img_submit"])) {
                         <?php } ?>
                     </div>
                 </div>
+                <div class="info-message">
+                    <p>A neveket ékezet nélkül kell megadni!</p>
+                </div>
+                <!-- E-mail -->
                 <div class="form-row">
                     <div class="form-col-25">
                         <label for="email">Email:</label>
@@ -282,6 +288,7 @@ if (isset($_POST["img_submit"])) {
                         <?php } ?>
                     </div>
                 </div>
+                <!-- Password -->
                 <div class="form-row">
                     <div class="form-col-25">
                         <label for="pwd">Jelszó:</label><br>
@@ -290,6 +297,7 @@ if (isset($_POST["img_submit"])) {
                         <input type="password" id="pwd" name="pwd" value="<?php echo $pwd; ?>"><br><br>
                     </div>
                 </div>
+                <!-- Password -->
                 <div class="form-row">
                     <div class="form-col-25">
                         <label for="pwd2">Jelszó mégegyszer:</label><br>
@@ -307,6 +315,7 @@ if (isset($_POST["img_submit"])) {
                             számot, egy nagybetűt, egy kisbetűt és egy speciális karaktert.</p>
                     </div>
                 </div>
+                <!-- User age -->
                 <div class="form-row">
                     <div class="form-col-25">
                         <label for="age">Életkor (18 - 65):</label><br>
@@ -320,6 +329,7 @@ if (isset($_POST["img_submit"])) {
                         <?php } ?>
                     </div>
                 </div>
+                <!-- Registration day -->
                 <div class="form-row">
                     <div class="form-col-25">
                         <label for="registerday">Dátum:</label>
@@ -333,16 +343,17 @@ if (isset($_POST["img_submit"])) {
                         <?php } ?>
                     </div>
                 </div>
+                <!-- Nationality -->
                 <div class="form-row">
                     <div style="width: 60%; margin-left: auto; margin-right: auto;">
                         <fieldset>
                             <legend>Állampolgárság</legend>
                             <input type="radio" id="hun" name="fav_language"
-                                   value="Magyar" <?php if (isset($fav_language) && $fav_language == "Magyar") echo "checked"; ?>>
+                                   value="hungary" <?php if (isset($fav_language) && $fav_language == "hungary") echo "checked"; ?>>
                             <label for="hun">Magyar</label><br>
-                            <input type="radio" id="oth" name="fav_language"
-                                   value="Külföldi" <?php if (isset($fav_language) && $fav_language == "Külföldi") echo "checked"; ?>>
-                            <label for="oth">Külföldi</label><br>
+                            <input type="radio" id="other" name="fav_language"
+                                   value="other" <?php if (isset($fav_language) && $fav_language == "other") echo "checked"; ?>>
+                            <label for="other">Külföldi</label><br>
                         </fieldset>
                         <?php if ($fav_languageErr) { ?>
                             <div class="error-message">
@@ -358,10 +369,10 @@ if (isset($_POST["img_submit"])) {
                             <fieldset>
                                 <legend>Jogosultság</legend>
                                 <input type="radio" id="admin" name="fav_role"
-                                       value="Admin" <?php if (isset($fav_role) && $fav_role == "Admin") echo "checked"; ?>>
+                                       value="admin" <?php if (isset($fav_role) && $fav_role == "admin") echo "checked"; ?>>
                                 <label for="admin">Admin</label><br>
                                 <input type="radio" id="user" name="fav_role"
-                                       value="Felhasználó" <?php if (isset($fav_role) && $fav_role == "Felhasználó") echo "checked"; ?>>
+                                       value="user" <?php if (isset($fav_role) && $fav_role == "user") echo "checked"; ?>>
                                 <label for="user">Felhasználó</label><br>
                             </fieldset>
                             <?php if ($fav_roleErr) { ?>
@@ -372,7 +383,11 @@ if (isset($_POST["img_submit"])) {
                         </div>
                     </div>
                 <?php } ?>
+                <?php if (!isset($_SESSION["userid"])) { ?>
+                    <input type="hidden" id="admin" name="fav_role" value="user">
+                <?php } ?>
                 <br>
+                <!-- buttons -->
                 <div class="form-row">
                     <input type="submit" value="Regisztráció" name="form_submit">
                     <input type="reset">
@@ -384,6 +399,7 @@ if (isset($_POST["img_submit"])) {
                 </div>
             </form>
         </article>
+        <!-- image upload -->
         <article class="form-container" style="margin-top: 10px">
             <h2>Profilkép feltöltése</h2>
             <form method="post" action="" enctype="multipart/form-data">

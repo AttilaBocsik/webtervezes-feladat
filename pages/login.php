@@ -131,6 +131,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
             <h1>Használt autókereskedés</h1>
         </div>
         <?php if (!isset($_SESSION["userid"])) { ?>
+        <?php } ?>
+        <?php if (!isset($_SESSION["userid"])) { ?>
             <article class="form-container">
                 <h2>Bejelentkezés</h2>
                 <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"

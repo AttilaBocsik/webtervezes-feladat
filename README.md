@@ -5,3 +5,13 @@
 - első mérföldkő: 2022. március 20. 23:59:00
 - második mérföldkő: 2022. április. 24. 23:59:00
 - Pótló/Javító: 2022. május. 1. 23:59:00
+
+
+## Teszt felhasználó belépési adatai:
+### Felhaszálói szerepkör
+- Email: kiss.janos@gmail.com
+- Jelszó: KissJanos2022*
+- 
+### Admin szerepkör
+- Email: nagy.janos@gmail.com
+- Jelszó: NagyJanos2022*

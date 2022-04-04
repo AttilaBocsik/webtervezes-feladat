@@ -30,6 +30,7 @@ include("../scripts/Validation.php");
 $valid = new Validation();
 
 $emailErr = $passwordErr = $userMessage = $passwordMessage = $email = $pwd = "";
+$removedUser = false;
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signin_submit"])) {
@@ -69,11 +70,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signin_submit"])) {
         }
     }
 }
+//Sign Out
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
     $emailErr = $passwordErr = $userMessage = $passwordMessage = $email = $pwd = "";
-    $isPasswordOk = false;
     session_unset();
-    session_destroy();
+    //session_destroy();
+}
+
+//Remove user
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"])) {
+    //session_unset();
+    //session_destroy();
+    $_SESSION["removedUser"] = json_encode($user->removeUser($_SESSION["userid"]));
+    $emailErr = $passwordErr = $userMessage = $passwordMessage = $email = $pwd = "";
+
 }
 ?>
 <main>
@@ -130,8 +140,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
         <div class="card-title">
             <h1>Használt autókereskedés</h1>
         </div>
-        <?php if (!isset($_SESSION["userid"])) { ?>
+        <!-- If Sign In -->
+        <?php if (isset($_SESSION["userid"])) { ?>
+            <article class="form-container">
+                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                    <div class="form-row">
+                        <input type="submit" value="Végleges törlés" name="remove_user_submit">
+                    </div>
+                </form>
+            </article>
         <?php } ?>
+        <?php if (isset($_SESSION["userid"]) && isset($_SESSION["removedUser"])) { ?>
+            <div class="error-message">
+                <p><strong>Felhasználó véglegesen törölve! <?php echo $_SESSION["removedUser"]; ?></strong></p>
+            </div>
+        <?php } ?>
+        <!-- Sign In -->
         <?php if (!isset($_SESSION["userid"])) { ?>
             <article class="form-container">
                 <h2>Bejelentkezés</h2>

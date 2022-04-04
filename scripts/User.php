@@ -33,22 +33,16 @@ class User
      */
     public function removeUser($email)
     {
-        $nemtorolt_felhasznalok = [];
         $felhasznalok = $this->readUsers();
         $felhasznalokBeforeCount = count($felhasznalok);
-        foreach ($felhasznalok as $felhasznalo) {
-            if (array_key_exists("email", $felhasznalo)) {
-                $key = array_search($email, $felhasznalo);
-                if ($key !== "email") {
-                    array_push($nemtorolt_felhasznalok, $felhasznalo);
-                }
-            }
+        $aktualis_felhasznalo = $this->getOneUsers($email);
+        if (($key = array_search($aktualis_felhasznalo, $felhasznalok)) !== false) {
+            unset($felhasznalok[$key]);
         }
-        $felhasznalokAfterCount = count($nemtorolt_felhasznalok);
-        $this->writingUsers($nemtorolt_felhasznalok);
+        $felhasznalokAfterCount = count($felhasznalok);
+        $this->writingUsers($felhasznalok);
         return ($felhasznalokAfterCount < $felhasznalokBeforeCount) ? true : false;
     }
-
 
     /**
      * DocBlock
@@ -109,7 +103,6 @@ class User
                 }
             }
         }
-        return null;
     }
 
     /**

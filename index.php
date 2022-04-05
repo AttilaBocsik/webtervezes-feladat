@@ -27,11 +27,20 @@
         }
 
         .flex-container > p {
-            margin-top: auto;
-            margin-bottom: auto;
-            margin-left: 10px;
-            margin-right: 10px;
+            margin: auto 10px;
             color: yellow;
+        }
+
+        .info-message {
+            color: green;
+            padding: 6px;
+            margin: 2px;
+        }
+
+        .cookie-info {
+            color: #dddddd;
+            padding: 6px;
+            margin: 2px;
         }
     </style>
     <title>Főoldal | Autókereskedés</title>
@@ -39,9 +48,17 @@
 <body>
 <?php
 session_start();
+$evaluation = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
     session_unset();
     session_destroy();
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["evaluation_submit"]) && isset($_POST["evaluation"])) {
+    $_SESSION["evaluationMessage"] = "Köszönjük az értékelést.";
+    $day = (time() + 3600) * 24; //1 nap
+    $value = "Felhasználó: " . $_SESSION["userid"] . ". Videó értékelése: " . $_POST["evaluation"] . ". Értékelés dátuma: " . date('Y-m-d H:i:s', $_SESSION['time']);
+    setcookie("Evaluation", $value, $day);
 }
 ?>
 <main>
@@ -66,11 +83,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
     <nav id="menu">
         <ul>
             <li><a class="current" href="index.php">Főoldal</a></li>
-            <li><a href="<?php if (isset($_SESSION["userid"])) { ?>pages/content1.php<?php } else { ?>pages/login.php<?php } ?>">
+            <li>
+                <a href="<?php if (isset($_SESSION["userid"])) { ?>pages/content1.php<?php } else { ?>pages/login.php<?php } ?>">
                     Renault autók
                 </a>
             </li>
-            <li><a href="<?php if (isset($_SESSION["userid"])) { ?>pages/content2.php<?php } else { ?>pages/login.php<?php } ?>">
+            <li>
+                <a href="<?php if (isset($_SESSION["userid"])) { ?>pages/content2.php<?php } else { ?>pages/login.php<?php } ?>">
                     Opel autók
                 </a>
             </li>
@@ -82,9 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
         <div class="row advertisements-layer">
             <article class="flex-container">
                 <p>Belépve mint: <strong><?php echo $_SESSION["userid"]; ?></strong></p>
-                <?php if (isset($_SESSION["userid"])) { ?>
-                    <p>Belépés ideje: <?php echo date('Y-m-d H:i:s', $_SESSION['time']); ?></p>
-                <?php } ?>
+                <p>Belépés ideje: <?php echo date('Y-m-d H:i:s', $_SESSION['time']); ?></p>
                 <div>
                     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
                           enctype="multipart/form-data">
@@ -126,8 +143,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
                 <video width="300" height="200" controls>
                     <source src="media/renault_kadjar.mp4" type="video/mp4">
                 </video>
+                <?php if (isset($_COOKIE["Evaluation"])) { ?>
+                    <div class="cookie-info">
+                        <p>Eddigi értékelések:</p>
+                        <p><?php print_r($_COOKIE["Evaluation"]); ?></p>
+                    </div>
+                <?php } ?>
+                <!-- If user sign In then video evalution -->
+                <?php if (isset($_SESSION["userid"])) { ?>
+                    <article class="form-container" style="margin-top: 10px; width: 100%">
+                        <?php if (isset($_SESSION["evaluationMessage"])) { ?>
+                            <div class="info-message">
+                                <p><?php echo $_SESSION["evaluationMessage"]; ?></p>
+                            </div>
+                        <?php } ?>
+                        <p>Kérem értékelje a videót 1 - 5-ig skálán.</p>
+                        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
+                              enctype="multipart/form-data">
+                            <div class="form-row">
+                                <div style="width: 100%; margin-left: auto; margin-right: auto;">
+                                    <fieldset>
+                                        <legend>Értékelés</legend>
+                                        <input type="radio" id="one" name="evaluation"
+                                               value="one" <?php if (isset($evaluation) && $evaluation == "one") echo "checked"; ?>>
+                                        <label for="one">1</label><br>
+                                        <input type="radio" id="two" name="evaluation"
+                                               value="two" <?php if (isset($evaluation) && $evaluation == "two") echo "checked"; ?>>
+                                        <label for="two">2</label><br>
+                                        <input type="radio" id="three" name="evaluation"
+                                               value="three" <?php if (isset($evaluation) && $evaluation == "three") echo "checked"; ?>>
+                                        <label for="three">3</label><br>
+                                        <input type="radio" id="four" name="evaluation"
+                                               value="four" <?php if (isset($evaluation) && $evaluation == "four") echo "checked"; ?>>
+                                        <label for="four">4</label><br>
+                                        <input type="radio" id="five" name="evaluation"
+                                               value="five" <?php if (isset($evaluation) && $evaluation == "five") echo "checked"; ?>>
+                                        <label for="five">5</label><br>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="form-row" style="margin-top: 10px">
+                                <input type="submit" value="Értékelés elküldése" name="evaluation_submit">
+                            </div>
+                        </form>
+                    </article>
+                <?php } ?>
             </div>
-
             <h2 style="text-align: center; color: #ddd">Kiemelt ajánlataink</h2>
             <div class="card-aside flip-box">
                 <div class="flip-box-inner">
@@ -153,8 +214,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
         </article>
     </div>
     <footer class="footer">
-        <p>&copy; Autókereskedés 2022 | Minden jog fenntartva.
-        </p>
+        <p>&copy; Autókereskedés 2022 | Minden jog fenntartva.</p>
     </footer>
 </main>
 

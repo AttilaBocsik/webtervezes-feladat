@@ -55,18 +55,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signin_submit"])) {
         } else {
             $pwd = $_POST["pwd"];
             $actualUserHash = $user->getPasswordUsers($email);
-            //$isPasswordOk = $encryption->pass_verify($pwd, $actualUserHash);
             if (!$encryption->pass_verify($pwd, $actualUserHash)) {
                 $passwordErr = "A jelszó nem érvényes !";
                 session_unset();
                 session_destroy();
             } else {
-                $passwordErr = "";
-
                 $_SESSION["userid"] = $email;
                 $_SESSION['time'] = time();
             }
-            //$isPasswordOk = false;
         }
     }
 }
@@ -124,9 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"]))
         <div class="row advertisements-layer">
             <article class="flex-container">
                 <p>Belépve mint: <strong><?php echo $_SESSION["userid"]; ?></strong></p>
-                <?php if (isset($_SESSION["userid"])) { ?>
-                    <p>Belépés ideje: <?php echo date('Y-m-d H:i:s', $_SESSION['time']); ?></p>
-                <?php } ?>
+                <p>Belépés ideje: <?php echo date('Y-m-d H:i:s', $_SESSION['time']); ?></p>
                 <div>
                     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
                           enctype="multipart/form-data">
@@ -187,7 +181,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"]))
                                         <?php echo $passwordErr ?>
                                     </div>
                                 <?php } ?>
-                                <?php if ($userMessage) { ?>
+                                <?php if ($userMessage != "") { ?>
                                     <div class="info-message">
                                         <?php echo $userMessage; ?>
                                     </div>

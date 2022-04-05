@@ -19,10 +19,13 @@ class User
     {
         $felhasznalok = $this->readUsers();
         $felhasznalokBeforeCount = count($felhasznalok);
-        array_push($felhasznalok, $input);
-        $felhasznalokAfterCount = count($felhasznalok);
+        $felhasznalokAfterCount = array_push($felhasznalok, $input);
         $this->writingUsers($felhasznalok);
-        return ($felhasznalokAfterCount > $felhasznalokBeforeCount) ? true : false;
+        if($felhasznalokAfterCount > $felhasznalokBeforeCount){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -35,13 +38,17 @@ class User
     {
         $felhasznalok = $this->readUsers();
         $felhasznalokBeforeCount = count($felhasznalok);
-        $aktualis_felhasznalo = $this->getOneUsers($email);
+        $aktualis_felhasznalo = $this->getOneUser($email);
         if (($key = array_search($aktualis_felhasznalo, $felhasznalok)) !== false) {
             unset($felhasznalok[$key]);
         }
         $felhasznalokAfterCount = count($felhasznalok);
         $this->writingUsers($felhasznalok);
-        return ($felhasznalokAfterCount < $felhasznalokBeforeCount) ? true : false;
+        if($felhasznalokAfterCount < $felhasznalokBeforeCount){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -59,7 +66,7 @@ class User
                 $res = array_search($email, $felhasznalo);
             }
         }
-        if ($res != null && $res === "email") {
+        if ($res != null && $res == "email") {
             return true;
         } else {
             return false;
@@ -92,7 +99,7 @@ class User
      * @return User || NULL
      * @name("getOneUsers")
      */
-    public function getOneUsers($email)
+    public function getOneUser($email)
     {
         $felhasznalok = $this->readUsers();
         foreach ($felhasznalok as $felhasznalo) {
@@ -103,6 +110,8 @@ class User
                 }
             }
         }
+
+        return null;
     }
 
     /**

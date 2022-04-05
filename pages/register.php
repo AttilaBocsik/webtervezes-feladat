@@ -117,7 +117,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
     }
 
     //save
-    $emailMessage = "";
     if ($errorMessageFname == "" && $errorMessageLname == "" && $emailErr == "" && $fav_languageErr == ""
         && $passwordErr == "" && $ageErr == "" && $registerdayErr == "" && $fav_roleErr == "") {
         $hash = $encryption->pass_hash($pwd);

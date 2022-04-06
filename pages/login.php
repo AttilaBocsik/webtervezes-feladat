@@ -22,6 +22,7 @@
 </head>
 <body>
 <?php
+session_start();
 include("../scripts/User.php");
 $user = new User();
 include("../scripts/Encryption.php");
@@ -30,12 +31,17 @@ include("../scripts/Validation.php");
 $valid = new Validation();
 
 $emailErr = $passwordErr = $userMessage = $passwordMessage = $email = $pwd = "";
-$vezetek_nev = $errorMessageFname = $kereszt_nev = $errorMessageLname = $pwd3 = $pwd4 = "";
+$selectedAction = "";
 $imgUpdate = false;
-$modifyUser = false;
-$modifiedUser = false;
+//variable in modified user function
+$vezetek_nev = $kereszt_nev = $pwd3 = $pwd4 = "";
+$errorMessageFname = $errorMessageLname = $errorMessagePassword = "";
+$modifyUser = $modifiedUser = $responseModifiedUser = false;
+//variable in remove user function
 $removedUser = false;
-session_start();
+
+unset($_SESSION["passwordErr"]);
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signin_submit"])) {
     // email
@@ -89,37 +95,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_update_user_subm
 //Modify user
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["modify_user_submit"])) {
     $actualUser = $user->getOneUser($_SESSION["userid"]);
-    $modifyUser = true;
     $vezetek_nev = $actualUser["firstname"];
     $kereszt_nev = $actualUser["lastname"];
+    //$modifyUser = true;
+    $_SESSION["modifyUser"] = true;
 }
 
-//passwords
-if (empty($_POST["pwd3"]) && empty($_POST["pwd4"])) {
-    átírni$passwordErrM = "A jelszavak megadása kötelező !";
-} else {
-    if (!($valid->password_validation($_POST["pwd3"], $_POST["pwd4"]))) {
-        $passwordErrM = "A jelszónak legalább 8 karakter hosszúságúnak kell lennie, és tartalmaznia kell legalább egy számot, egy nagybetűt, egy kisbetűt és egy speciális karaktert.";
-    } else {
-        $pwd3 = $_POST["pwd3"];
-        $pwd4 = $_POST["pwd4"];
-    }
-}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["modified_user_submit"])) {
-    $actualUser = $user->getOneUser($_SESSION["userid"]);
-    $modifyUser = false;
-    $modifiedUser = true;
-    $hash = $encryption->pass_hash($pwd);
-    //$_SESSION["modifiedUser"] = json_encode($user->modifyUser($_SESSION["userid"]), $_POST[""], $_POST[""], $hash);
-    $vezetek_nev = $errorMessageFname = $kereszt_nev = $errorMessageLname = $pwd3 = $pwd4 = $passwordErrM = "";
+    //firstname
+    if (empty($_POST["fname"])) {
+        $errorMessageFname = "A vezetéknév megadása kötelező !";
+    } else {
+        $vezetek_nev = $valid->test_input($_POST["fname"]);
+        if (!preg_match("/^[a-zA-Z-' ]*$/", $vezetek_nev)) {
+            $errorMessageFname = "Csak betűk és szóközök megengedettek !";
+        }
+    }
+
+    //lastname
+    if (empty($_POST["lname"])) {
+        $errorMessageLname = "A keresztnév megadása kötelező !";
+    } else {
+        $kereszt_nev = $valid->test_input($_POST["lname"]);
+        if (!preg_match("/^[a-zA-Z-' ]*$/", $kereszt_nev)) {
+            $errorMessageLname = "Csak betűk és szóközök megengedettek !";
+        }
+    }
+
+    //passwords
+    if (empty($_POST["pwd3"]) && empty($_POST["pwd4"])) {
+        $errorMessagePassword = "A jelszavak megadása kötelező !";
+    } else {
+        if (!($valid->password_validation($_POST["pwd3"], $_POST["pwd4"]))) {
+            $errorMessagePassword = "A jelszónak legalább 8 karakter hosszúságúnak kell lennie, és tartalmaznia kell legalább egy számot, egy nagybetűt, egy kisbetűt és egy speciális karaktert.";
+        } else {
+            $pwd3 = $_POST["pwd3"];
+            $pwd4 = $_POST["pwd4"];
+        }
+    }
+
+    if ($errorMessageFname == "" && $errorMessageLname == "" && $errorMessagePassword == "") {
+        $hash = $encryption->pass_hash($pwd3);
+        $actualUser = $user->getOneUser($_SESSION["userid"]);
+        $responseModifiedUser = $user->modifyUser($_SESSION["userid"], $vezetek_nev, $kereszt_nev, $hash);
+        $vezetek_nev = $kereszt_nev = $pwd3 = $pwd4  = $errorMessageFname = $errorMessageLname = $errorMessagePassword = "";
+        unset($_SESSION["modifyUser"]);
+    }
 }
 
 //Remove user
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"])) {
     //session_unset();
     //session_destroy();
-    $_SESSION["removedUser"] = json_encode($user->removeUser($_SESSION["userid"]));
+    $removedUser = $user->removeUser($_SESSION["userid"]);
     $emailErr = $passwordErr = $userMessage = $passwordMessage = $email = $pwd = "";
 
 }
@@ -192,6 +221,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"]))
                         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                             <div class="form-row">
                                 <input type="submit" value="Adat módosítás" name="modify_user_submit">
+                                <br/>
+                                <?php if ($responseModifiedUser) { ?>
+                                    <div class="info-message">
+                                        <p>A modósítás sikeres.</p>
+                                    </div>
+                                <?php } ?>
                             </div>
                         </form>
                         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
@@ -203,12 +238,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"]))
                 </div>
             </article>
         <?php } ?>
-        <?php if (isset($_SESSION["userid"]) && $modifyUser == true) { ?>
-            <article class="form-container">
+        <!-- Modify user -->
+        <?php if (isset($_SESSION["userid"]) && isset($_SESSION["modifyUser"]) && $_SESSION["modifyUser"] == true) { ?>
+            <article class="form-container" style="margin-top: 10px">
                 <h4>Felhasználó módosítása</h4>
                 <hr/>
                 <br/>
-                <div class="form-row">
+                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                     <!-- First name -->
                     <div class="form-row">
                         <div class="form-col-25">
@@ -216,7 +252,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"]))
                         </div>
                         <div class="form-col-75">
                             <input type="text" id="fname" name="fname" value="<?php echo $vezetek_nev; ?>">
-                            <?php if ($errorMessageFname != "") { ?>
+                            <?php if ($errorMessageFname) { ?>
                                 <div class="error-message">
                                     <?php echo $errorMessageFname ?>
                                 </div>
@@ -230,7 +266,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"]))
                         </div>
                         <div class="form-col-75">
                             <input type="text" id="lname" name="lname" value="<?php echo $kereszt_nev; ?>">
-                            <?php if ($errorMessageLname != "") { ?>
+                            <?php if ($errorMessageLname) { ?>
                                 <div class="error-message">
                                     <?php echo $errorMessageLname ?>
                                 </div>
@@ -256,9 +292,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"]))
                         </div>
                         <div class="form-col-75">
                             <input type="password" id="pwd4" name="pwd4" value="<?php echo $pwd4; ?>"><br><br>
-                            <?php if ($passwordErrM != "") { ?>
+                            <?php if ($errorMessagePassword) { ?>
                                 <div class="error-message">
-                                    <?php echo $passwordErrM ?>
+                                    <?php echo $errorMessagePassword ?>
                                 </div>
                             <?php } ?>
                         </div>
@@ -268,13 +304,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"]))
                                 számot, egy nagybetűt, egy kisbetűt és egy speciális karaktert.</p>
                         </div>
                     </div>
-                </div>
+                    <!-- buttons -->
+                    <div class="form-row">
+                        <input type="submit" value="Módosítás" name="modified_user_submit">
+                    </div>
+                </form>
             </article>
         <?php } ?>
         <!-- User remove -->
-        <?php if (isset($_SESSION["userid"]) && isset($_SESSION["removedUser"])) { ?>
-            <div class="error-message">
-                <p><strong>Felhasználó véglegesen törölve! <?php echo $_SESSION["removedUser"]; ?></strong></p>
+        <?php if (isset($_SESSION["userid"]) && isset($removedUser) && $removedUser == true) { ?>
+            <div class="info-message">
+                <p><strong>Felhasználó véglegesen törölve!</strong></p>
             </div>
         <?php } ?>
         <!-- Sign In -->

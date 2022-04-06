@@ -21,7 +21,44 @@ class User
         $felhasznalokBeforeCount = count($felhasznalok);
         $felhasznalokAfterCount = array_push($felhasznalok, $input);
         $this->writingUsers($felhasznalok);
-        if($felhasznalokAfterCount > $felhasznalokBeforeCount){
+        if ($felhasznalokAfterCount > $felhasznalokBeforeCount) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * DocBlock
+     * @param $email
+     * @param $firstname
+     * @param $lastname
+     * @param $hash
+     * @return boolean
+     * @name("modifyUser")
+     */
+    public function modifyUser($email, $firstname, $lastname, $hash)
+    {
+        //bekérjük az összes felhasználót és berakjuk egy tömbbe
+        $felhasznalok = $this->readUsers();
+        //megszámoljuk a tömb elemeit
+        $felhasznalokBeforeCount = count($felhasznalok);
+        //bekérjük a módosítani kívánt felhasználót
+        $aktualis_felhasznalo = $this->getOneUser($email);
+        //töröljük módosítani kívánt felhasználót a tömbből
+        if (($key = array_search($aktualis_felhasznalo, $felhasznalok)) !== false) {
+            unset($felhasznalok[$key]);
+        }
+        //berakjuk az új adatokat a felhasználóba
+        $aktualis_felhasznalo["firstname"] = $firstname;
+        $aktualis_felhasznalo["lastname"] = $lastname;
+        $aktualis_felhasznalo["password"] = $hash;
+        //hozzáadjuk a módosított felhasználót a tömbhöz
+        $felhasznalokAfterCount = array_push($felhasznalok, $aktualis_felhasznalo);
+        //ki írjuk fájlba a tömböt
+        $this->writingUsers($felhasznalok);
+        //menézzük, hogy a tömb elemek azonosak-e és visszatérünk igaz vagy hamis értékkel
+        if ($felhasznalokAfterCount == $felhasznalokBeforeCount) {
             return true;
         } else {
             return false;
@@ -44,7 +81,7 @@ class User
         }
         $felhasznalokAfterCount = count($felhasznalok);
         $this->writingUsers($felhasznalok);
-        if($felhasznalokAfterCount < $felhasznalokBeforeCount){
+        if ($felhasznalokAfterCount < $felhasznalokBeforeCount) {
             return true;
         } else {
             return false;

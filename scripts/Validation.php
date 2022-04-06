@@ -9,6 +9,26 @@ class Validation
 
     /**
      * DocBlock
+     * @param $text
+     * @return string
+     * @name("text_validation")
+     */
+    public function text_validation($text)
+    {
+        if (empty($text)) {
+            return "A mező nem lehet üres!";
+        } else {
+            $txt = $this->test_input($text);
+            if (!preg_match("/^[a-zA-Z-' ]*$/", $txt)) {
+                return "Csak betűk és szóközök megengedettek !";
+            } else {
+                return "";
+            }
+        }
+    }
+
+    /**
+     * DocBlock
      * @param $pwd
      * @param $pwd2
      * @return boolean

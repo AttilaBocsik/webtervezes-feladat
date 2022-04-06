@@ -31,6 +31,12 @@
             color: yellow;
         }
 
+        .error-message {
+            color: red;
+            padding: 10px;
+            margin: 2px;
+        }
+
         .info-message {
             color: green;
             padding: 6px;
@@ -47,18 +53,29 @@
 </head>
 <body>
 <?php
+include("scripts/User.php");
+$user = new User();
+include("scripts/Encryption.php");
+$encryption = new Encryption();
+include("scripts/Validation.php");
+$valid = new Validation();
+
 session_start();
-$evaluation = "";
+$evaluation = "five";
+unset($_SESSION["evaluationMessage"]);
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
     session_unset();
     session_destroy();
 }
 
+//evaluation
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["evaluation_submit"]) && isset($_POST["evaluation"])) {
+    $evaluation = $valid->test_input($_POST["evaluation"]);
     $_SESSION["evaluationMessage"] = "Köszönjük az értékelést.";
     $day = (time() + 3600) * 24; //1 nap
-    $value = "Felhasználó: " . $_SESSION["userid"] . ". Videó értékelése: " . $_POST["evaluation"] . ". Értékelés dátuma: " . date('Y-m-d H:i:s', $_SESSION['time']);
+    $value = "Felhasználó: " . $_SESSION["userid"] . ". Videó értékelése: " . $evaluation . ". Értékelés dátuma: " . date('Y-m-d H:i:s', $_SESSION['time']);
     setcookie("Evaluation", $value, $day);
+
 }
 ?>
 <main>
@@ -145,7 +162,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["evaluation_submit"]) &
                 </video>
                 <?php if (isset($_COOKIE["Evaluation"])) { ?>
                     <div class="cookie-info">
-                        <p>Eddigi értékelések:</p>
+                        <p>Eddigi videó értékelések:</p>
                         <p><?php print_r($_COOKIE["Evaluation"]); ?></p>
                     </div>
                 <?php } ?>

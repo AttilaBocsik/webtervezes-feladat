@@ -23,10 +23,6 @@
             padding: 6px;
             margin: 2px;
         }
-
-        .profil-img {
-            margin-left: 10px;
-        }
     </style>
 </head>
 <body>
@@ -201,12 +197,18 @@ if (isset($_FILES["imgToUpload"]) && basename($_FILES["imgToUpload"]["name"]) !=
     }
 }
 
-
 //Image remove selected button
+$imgRemovedMessage = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_submit"])) {
     unset($_SESSION["img_upload"]);
     unset($_SESSION["modifyUser"]);
-    $_SESSION["img_removed"] = true;
+    If (unlink($user->getImgUser($_SESSION["userid"]))) {
+        unset($_SESSION["user_img"]);
+        $imgRemovedMessage = "A kép törlése sikeres !";
+        $_SESSION["img_removed"] = true;
+    } else {
+        $imgRemovedMessage = "A kép törlése sikertelen !";
+    }
 }
 ?>
 <main>
@@ -246,8 +248,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_subm
     <?php if (isset($_SESSION["userid"])) { ?>
         <div class="row advertisements-layer">
             <article class="flex-container">
-                <?php if (isset($_SESSION["user_img"]) && $_SESSION["user_img"] != "") { ?>
-                    <img src="<?php echo $_SESSION["user_img"]; ?>" alt="Profilkép" style="width:auto;height:55px;">
+                <?php if (isset($_SESSION["user_img"])) { ?>
+                    <img src="<?php echo $_SESSION["user_img"]; ?>" alt="kép" style="width:auto;height:55px;">
+                <?php } else { ?>
+                    <img src="../img/no-image.jpg" alt="No image" style="width:auto;height:55px;">
                 <?php } ?>
                 <p>Belépve mint: <strong><?php echo $_SESSION["userid"]; ?></strong></p>
                 <p>Belépés ideje: <?php echo date('Y-m-d H:i:s', $_SESSION['time']); ?></p>
@@ -406,6 +410,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_subm
                     <?php } ?>
                 </form>
             </article>
+        <?php } ?>
+        <!-- Image remove -->
+        <?php if (isset($_SESSION["userid"]) && isset($_SESSION["img_removed"]) && $_SESSION["img_removed"] == true) { ?>
+            <div class="info-message">
+                <p><strong><?php echo $imgRemovedMessage;?></strong></p>
+            </div>
         <?php } ?>
         <!-- Sign In -->
         <?php if (!isset($_SESSION["userid"])) { ?>

@@ -197,6 +197,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
     <?php if (isset($_SESSION["userid"])) { ?>
         <div class="row advertisements-layer">
             <article class="flex-container">
+                <?php if (isset($_SESSION["user_img"])) { ?>
+                    <img src="<?php echo $_SESSION["user_img"]; ?>" alt="kép" style="width:auto;height:55px;">
+                <?php } else { ?>
+                    <img src="../img/no-image.jpg" alt="No image" style="width:auto;height:55px;">
+                <?php } ?>
                 <p>Belépve mint: <strong><?php echo $_SESSION["userid"]; ?></strong></p>
                 <?php if (isset($_SESSION["userid"])) { ?>
                     <p>Belépés ideje: <?php echo date('Y-m-d H:i:s', $_SESSION['time']); ?></p>
@@ -207,11 +212,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
                         <input type="submit" value="Kilépés" name="signout_submit">
                     </form>
                 </div>
-                <?php if (isset($_SESSION["user_img"]) && $_SESSION["user_img"] != "") { ?>
-                    <div class="profil-img">
-                        <img src="<?php echo "../img/" . $_SESSION["user_img"] . ".jpg"; ?>" alt="Profilkép" style="width:auto;height:55px;">
-                    </div>
-                <?php } ?>
             </article>
         </div>
     <?php } ?>

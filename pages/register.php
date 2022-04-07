@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="../css/styles.css"/>
     <title>Regisztráció | Autókereskedés</title>
     <style>
+        .flex-container > p {
+            margin: auto 10px;
+            color: yellow;
+        }
+
         .error-message {
             color: red;
             padding: 10px;
@@ -17,6 +22,10 @@
             color: green;
             padding: 6px;
             margin: 2px;
+        }
+
+        .profil-img {
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -151,32 +160,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
     session_destroy();
 }
 ?>
-<?php
-$imgToUploadMessage = $imgToUploadErr = $target_file = "";
-$target_dir = "../img/";
-$target_file = $target_dir . basename($_FILES["imgToUpload"]["name"]);
-$uploadOk = 1;
-$imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-if (isset($_POST["img_submit"])) {
-    //Ellenőrizze, hogy a képfájl valódi kép vagy hamis kép
-    $isImageFile = getimagesize($_FILES["imgToUpload"]["tmp_name"]);
-    // Ellenőrizze, hogy létezik-e már fájl
-    $isFile = file_exists($target_file);
-    // Ellenőrizze a fájl méretét
-    $size = $_FILES["imgToUpload"]["size"];
-
-    if ($isImageFile !== false && $isFile !== true && $size <= 200000 && $imageFileType === "jpg") {
-        // ha minden rendben van a képpel, akkor átmásoljuk az ideiglenes mappából
-        if (move_uploaded_file($_FILES["imgToUpload"]["tmp_name"], $target_file)) {
-            $imgToUploadMessage = "A " . htmlspecialchars(basename($_FILES["imgToUpload"]["name"])) . " fájl feltöltve.";
-        }
-    } else {
-        $imgToUploadErr = "Elnézést, hiba történt a fájl feltöltésekor! 
-        Hibak lehetnek: nem kép, nem jpg kiterjesztés, már létezik ez a fájl, nagy méret! ";
-    }
-}
-?>
 <main>
     <header class="header">
         <div class="slide-container">
@@ -224,6 +207,11 @@ if (isset($_POST["img_submit"])) {
                         <input type="submit" value="Kilépés" name="signout_submit">
                     </form>
                 </div>
+                <?php if (isset($_SESSION["user_img"]) && $_SESSION["user_img"] != "") { ?>
+                    <div class="profil-img">
+                        <img src="<?php echo "../img/" . $_SESSION["user_img"] . ".jpg"; ?>" alt="Profilkép" style="width:auto;height:55px;">
+                    </div>
+                <?php } ?>
             </article>
         </div>
     <?php } ?>
@@ -396,29 +384,6 @@ if (isset($_POST["img_submit"])) {
                         </div>
                     <?php } ?>
                 </div>
-            </form>
-        </article>
-        <!-- image upload -->
-        <article class="form-container" style="margin-top: 10px">
-            <h2>Profilkép feltöltése</h2>
-            <form method="post" action="" enctype="multipart/form-data">
-                <div class="form-row">
-                    <p>Válassza ki a feltöltendő képet(jpg kiterjesztés, 700px*700px):</p>
-                    <input type="file" name="imgToUpload" id="imgToUpload" accept=".JPG">
-                </div>
-                <div class="form-row">
-                    <input type="submit" value="Kép feltöltése" name="img_submit">
-                </div>
-                <?php if ($imgToUploadMessage) { ?>
-                    <div class="info-message">
-                        <?php echo $imgToUploadMessage; ?>
-                    </div>
-                <?php } ?>
-                <?php if ($imgToUploadErr) { ?>
-                    <div class="error-message">
-                        <?php echo $imgToUploadErr; ?>
-                    </div>
-                <?php } ?>
             </form>
         </article>
     </article>

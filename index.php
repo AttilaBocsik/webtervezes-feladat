@@ -48,6 +48,10 @@
             padding: 6px;
             margin: 2px;
         }
+
+        .profil-img {
+            margin-left: 10px;
+        }
     </style>
     <title>Főoldal | Autókereskedés</title>
 </head>
@@ -125,6 +129,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["evaluation_submit"]) &
                         <input type="submit" value="Kilépés" name="signout_submit">
                     </form>
                 </div>
+                <?php if (isset($_SESSION["user_img"]) && $_SESSION["user_img"] != "") { ?>
+                    <div class="profil-img">
+                        <img src="<?php echo "img/" . $_SESSION["user_img"] . ".jpg"; ?>" alt="Profilkép" style="width:auto;height:55px;">
+                    </div>
+                <?php } ?>
             </article>
         </div>
     <?php } ?>

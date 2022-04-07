@@ -114,6 +114,26 @@ class User
      * DocBlock
      * @param $email
      * @return string
+     * @name("getImgUser")
+     */
+    public function getImgUser($email)
+    {
+        $felhasznalok = $this->readUsers();
+        foreach ($felhasznalok as $felhasznalo) {
+            if (array_key_exists("email", $felhasznalo)) {
+                $key = array_search($email, $felhasznalo);
+                if ($key === "email") {
+                    return $felhasznalo["img"];
+                }
+            }
+        }
+        return "";
+    }
+
+    /**
+     * DocBlock
+     * @param $email
+     * @return string
      * @name("getPasswordUsers")
      */
     public function getPasswordUsers($email)
@@ -149,6 +169,39 @@ class User
         }
 
         return null;
+    }
+
+    /**
+     * DocBlock
+     * @param $email
+     * @param $img
+     * @return boolean
+     * @name("modifyUserImg")
+     */
+    public function modifyUserImg($email, $img)
+    {
+        //bekérjük az összes felhasználót és berakjuk egy tömbbe
+        $felhasznalok = $this->readUsers();
+        //megszámoljuk a tömb elemeit
+        $felhasznalokBeforeCount = count($felhasznalok);
+        //bekérjük a módosítani kívánt felhasználót
+        $aktualis_felhasznalo = $this->getOneUser($email);
+        //töröljük módosítani kívánt felhasználót a tömbből
+        if (($key = array_search($aktualis_felhasznalo, $felhasznalok)) !== false) {
+            unset($felhasznalok[$key]);
+        }
+        //berakjuk az új adatokat a felhasználóba
+        $aktualis_felhasznalo["img"] = $img;
+        //hozzáadjuk a módosított felhasználót a tömbhöz
+        $felhasznalokAfterCount = array_push($felhasznalok, $aktualis_felhasznalo);
+        //ki írjuk fájlba a tömböt
+        $this->writingUsers($felhasznalok);
+        //menézzük, hogy a tömb elemek azonosak-e és visszatérünk igaz vagy hamis értékkel
+        if ($felhasznalokAfterCount == $felhasznalokBeforeCount) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

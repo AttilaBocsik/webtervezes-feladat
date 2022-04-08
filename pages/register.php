@@ -190,14 +190,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
                     Opel autók
                 </a>
             </li>
-            <li><a href="login.php">Bejelentkezés</a></li>
+            <li><a href="login.php"><?php if (isset($_SESSION["userid"])) {
+                        echo "Felhasználó";
+                    } else {
+                        echo "Bejelentkezés";
+                    } ?></a></li>
             <li><a class="current" href="register.php">Regisztráció</a></li>
         </ul>
     </nav>
     <?php if (isset($_SESSION["userid"])) { ?>
         <div class="row advertisements-layer">
             <article class="flex-container">
-                <?php if (isset($_SESSION["user_img"])) { ?>
+                <?php if (isset($_SESSION["user_img"]) && $valid->imgPahtSlice($_SESSION["user_img"]) != "") { ?>
                     <img src="<?php echo $_SESSION["user_img"]; ?>" alt="kép" style="width:auto;height:55px;">
                 <?php } else { ?>
                     <img src="../img/no-image.jpg" alt="No image" style="width:auto;height:55px;">
@@ -388,9 +392,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
         </article>
     </article>
     <footer class="footer">
-        <p>&copy; Autókereskedés 2022 | Minden jog fenntartva.
-        </p>
-        <p><?php echo json_encode($responseIsEmailUsers) ?></p>
+        <p>&copy; Autókereskedés 2022 | Minden jog fenntartva.</p>
     </footer>
 </main>
 

@@ -67,4 +67,17 @@ class Validation
         return $data;
     }
 
+    /**
+     * DocBlock
+     * @param $data
+     * @return string
+     * @name("imgPahtSlit")
+     */
+    public function imgPahtSlice($path)
+    {
+        if($path == null || $path == "") return "";
+        $slicePath = explode("/", $path);
+        return end($slicePath);
+    }
+
 }

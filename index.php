@@ -48,10 +48,6 @@
             padding: 6px;
             margin: 2px;
         }
-
-        .profil-img {
-            margin-left: 10px;
-        }
     </style>
     <title>Főoldal | Autókereskedés</title>
 </head>
@@ -114,13 +110,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["evaluation_submit"]) &
                     Opel autók
                 </a>
             </li>
-            <li><a href="pages/login.php">Bejelentkezés</a></li>
+            <li><a href="pages/login.php"><?php if (isset($_SESSION["userid"])) { echo "Felhasználó"; } else { echo "Bejelentkezés"; } ?></a></li>
             <li><a href="pages/register.php">Regisztráció</a></li>
         </ul>
     </nav>
     <?php if (isset($_SESSION["userid"])) { ?>
         <div class="row advertisements-layer">
             <article class="flex-container">
+                <?php if (isset($_SESSION["user_img"]) && $valid->imgPahtSlice($_SESSION["user_img"]) != "") { ?>
+                    <img src="<?php echo "img/" . $valid->imgPahtSlice($_SESSION["user_img"]); ?>" alt="kép" style="width:auto;height:55px;">
+                <?php } else { ?>
+                    <img src="img/no-image.jpg" alt="No image" style="width:auto;height:55px;">
+                <?php } ?>
                 <p>Belépve mint: <strong><?php echo $_SESSION["userid"]; ?></strong></p>
                 <p>Belépés ideje: <?php echo date('Y-m-d H:i:s', $_SESSION['time']); ?></p>
                 <div>

@@ -88,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
     //session_destroy();
 }
 
-//Modify user
+//Modify user button
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["modify_user_submit"])) {
     $actualUser = $user->getOneUser($_SESSION["userid"]);
     $vezetek_nev = $actualUser["firstname"];
@@ -96,6 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["modify_user_submit"]))
     //$modifyUser = true;
     unset($_SESSION["img_upload"]);
     unset($_SESSION["img_removed"]);
+    unset($_SESSION["imgToUploadMessage"]);
     $_SESSION["modifyUser"] = true;
 }
 
@@ -146,6 +147,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["modified_user_submit"]
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"])) {
     //session_unset();
     //session_destroy();
+    unset($_SESSION["img_removed"]);
+    unset($_SESSION["modifyUser"]);
+    unset($_SESSION["imgToUploadMessage"]);
     $removedUser = $user->removeUser($_SESSION["userid"]);
     $emailErr = $passwordErr = $userMessage = $passwordMessage = $email = $pwd = "";
 
@@ -157,6 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"]))
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_update_user_submit"])) {
     unset($_SESSION["img_removed"]);
     unset($_SESSION["modifyUser"]);
+    unset($_SESSION["imgToUploadMessage"]);
     $_SESSION["img_upload"] = true;
 }
 //Image update
@@ -175,22 +180,28 @@ if (isset($_FILES["imgToUpload"]) && basename($_FILES["imgToUpload"]["name"]) !=
     $size = $_FILES["imgToUpload"]["size"];
     if (isset($_POST["img_submit"])) {
         if ($isImageFile === false) {
+            $_SESSION["imgToUploadMessage"] = false;
             $imgToUploadErr = "A kép nem valódi !";
         } elseif ($isFile === true) {
+            $_SESSION["imgToUploadMessage"] = false;
             $imgToUploadErr = "Ilyen nevű fájl már létezik !";
         } elseif ($size >= 200000) {
+            $_SESSION["imgToUploadMessage"] = false;
             $imgToUploadErr = "A fájl mérete túl nagy !";
         } elseif ($imageFileType !== "jpg") {
+            $_SESSION["imgToUploadMessage"] = false;
             $imgToUploadErr = "Csak jpg kiterjesztést lehet megadni !";
         } else {
             if (move_uploaded_file($_FILES["imgToUpload"]["tmp_name"], $target_file)) {
                 $responseImgNameWrite = $user->modifyUserImg($_SESSION["userid"], $target_file);
                 if ($responseImgNameWrite) {
+                    $_SESSION["imgToUploadMessage"] = true;
                     $imgToUploadMessage = "Fájl feltöltés sikeres.";
                     unset($_SESSION["img_upload"]);
-                    $_SESSION["user_img"] = $user->getImgUser($email); //Load profile image
+                    $_SESSION["user_img"] = $user->getImgUser($_SESSION["userid"]); //Load profile image
                 }
             } else {
+                $_SESSION["imgToUploadMessage"] = false;
                 $imgToUploadErr = "Elnézést, hiba történt a fájl feltöltésekor !";
             }
         }
@@ -202,10 +213,16 @@ $imgRemovedMessage = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_submit"])) {
     unset($_SESSION["img_upload"]);
     unset($_SESSION["modifyUser"]);
+    unset($_SESSION["imgToUploadMessage"]);
+    $_SESSION["img_removed"] = true;
     If (unlink($user->getImgUser($_SESSION["userid"]))) {
-        unset($_SESSION["user_img"]);
-        $imgRemovedMessage = "A kép törlése sikeres !";
-        $_SESSION["img_removed"] = true;
+        $responseImgNameWrite = $user->modifyUserImg($_SESSION["userid"], "");
+        if($responseImgNameWrite) {
+            unset($_SESSION["user_img"]);
+            $imgRemovedMessage = "A kép törlése sikeres !";
+        } else {
+            $imgRemovedMessage = "Nem sikerült a képet törölni az adatokból !";
+        }
     } else {
         $imgRemovedMessage = "A kép törlése sikertelen !";
     }
@@ -241,14 +258,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_subm
                     Opel autók
                 </a>
             </li>
-            <li><a class="current" href="login.php">Bejelentkezés</a></li>
+            <li><a class="current" href="login.php"><?php if (isset($_SESSION["userid"])) { echo "Felhasználó"; } else { echo "Bejelentkezés"; } ?></a></li>
             <li><a href="register.php">Regisztráció</a></li>
         </ul>
     </nav>
     <?php if (isset($_SESSION["userid"])) { ?>
         <div class="row advertisements-layer">
             <article class="flex-container">
-                <?php if (isset($_SESSION["user_img"])) { ?>
+                <?php if (isset($_SESSION["user_img"]) && $valid->imgPahtSlice($_SESSION["user_img"]) != "") { ?>
                     <img src="<?php echo $_SESSION["user_img"]; ?>" alt="kép" style="width:auto;height:55px;">
                 <?php } else { ?>
                     <img src="../img/no-image.jpg" alt="No image" style="width:auto;height:55px;">
@@ -398,7 +415,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_subm
                     <div class="form-row">
                         <input type="submit" value="Kép feltöltése" name="img_submit">
                     </div>
-                    <?php if ($imgToUploadMessage) { ?>
+                    <?php if (isset($_SESSION["imgToUploadMessage"])) { ?>
                         <div class="info-message">
                             <?php echo $imgToUploadMessage; ?>
                         </div>

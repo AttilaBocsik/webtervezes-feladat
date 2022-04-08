@@ -11,7 +11,7 @@
 ### Felhaszálói szerepkör
 - Email: kiss.janos@gmail.com
 - Jelszó: KissJanos2022*
-- 
+
 ### Admin szerepkör
 - Email: nagy.janos@gmail.com
 - Jelszó: NagyJanos2022*

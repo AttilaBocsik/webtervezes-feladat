@@ -34,6 +34,8 @@ include("../scripts/Encryption.php");
 $encryption = new Encryption();
 include("../scripts/Validation.php");
 $valid = new Validation();
+include("../scripts/PublicData.php");
+$publicData = new PublicData();
 
 $emailErr = $passwordErr = $userMessage = $passwordMessage = $email = $pwd = "";
 $selectedAction = "";
@@ -97,6 +99,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["modify_user_submit"]))
     unset($_SESSION["img_upload"]);
     unset($_SESSION["img_removed"]);
     unset($_SESSION["imgToUploadMessage"]);
+    $_SESSION["public_data_set"] = false;
+    $_SESSION["public_data_message"] = false;
     $_SESSION["modifyUser"] = true;
 }
 
@@ -150,19 +154,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["remove_user_submit"]))
     unset($_SESSION["img_removed"]);
     unset($_SESSION["modifyUser"]);
     unset($_SESSION["imgToUploadMessage"]);
+    $_SESSION["public_data_set"] = false;
+    $_SESSION["public_data_message"] = false;
     $removedUser = $user->removeUser($_SESSION["userid"]);
     $emailErr = $passwordErr = $userMessage = $passwordMessage = $email = $pwd = "";
 
 }
 ?>
 <?php
-
 //Image update selected button
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_update_user_submit"])) {
     unset($_SESSION["img_removed"]);
     unset($_SESSION["modifyUser"]);
     unset($_SESSION["imgToUploadMessage"]);
     $_SESSION["img_upload"] = true;
+    $_SESSION["public_data_set"] = false;
+    $_SESSION["public_data_message"] = false;
 }
 //Image update
 $imgToUploadMessage = $imgToUploadErr = $target_file = $img_name = "";
@@ -215,9 +222,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_subm
     unset($_SESSION["modifyUser"]);
     unset($_SESSION["imgToUploadMessage"]);
     $_SESSION["img_removed"] = true;
-    If (unlink($user->getImgUser($_SESSION["userid"]))) {
+    $_SESSION["public_data_set"] = false;
+    $_SESSION["public_data_message"] = false;
+    $_SESSION["img_upload"] = false;
+    if (unlink($user->getImgUser($_SESSION["userid"]))) {
         $responseImgNameWrite = $user->modifyUserImg($_SESSION["userid"], "");
-        if($responseImgNameWrite) {
+        if ($responseImgNameWrite) {
             unset($_SESSION["user_img"]);
             $imgRemovedMessage = "A kép törlése sikeres !";
         } else {
@@ -227,6 +237,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_subm
         $imgRemovedMessage = "A kép törlése sikertelen !";
     }
 }
+?>
+<?php
+$publicDataModifiedMessage = "";
+$publics = [];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_btn"])) {
+    unset($_SESSION["modifyUser"]);
+    unset($_SESSION["imgToUploadMessage"]);
+    unset($_SESSION["img_removed"]);
+    $_SESSION["img_upload"] = false;
+    $_SESSION["public_data_message"] = false;
+    $_SESSION["public_data_set"] = true;
+}
+$uj_felhasznalo_adatok = [];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_submit"])) {
+    $_SESSION["public_data_set"] = false;
+    $_SESSION["public_data_message"] = true;
+
+    if (isset($_POST['publics'])) {
+        $uj_felhasznalo_adatok = [
+            "email" => $_SESSION["userid"],
+            "public_list" => $_POST["publics"],
+        ];
+        $responsePublicData = $publicData->modifyUserData($_SESSION["userid"], $uj_felhasznalo_adatok);
+        if ($responsePublicData) {
+            $publicDataModifiedMessage = "Sikeres mentés !";
+        } else {
+            $publicDataModifiedMessage = "Sikertelen mentés !";
+        }
+    } else {
+        $publicDataModifiedMessage = "Sikertelen mentés !";
+    }
+
+
+}
+
+
 ?>
 <main>
     <header class="header">
@@ -258,7 +304,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_subm
                     Opel autók
                 </a>
             </li>
-            <li><a class="current" href="login.php"><?php if (isset($_SESSION["userid"])) { echo "Felhasználó"; } else { echo "Bejelentkezés"; } ?></a></li>
+            <li><a class="current" href="login.php"><?php if (isset($_SESSION["userid"])) {
+                        echo "Felhasználó";
+                    } else {
+                        echo "Bejelentkezés";
+                    } ?></a></li>
             <li><a href="register.php">Regisztráció</a></li>
         </ul>
     </nav>
@@ -293,6 +343,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_subm
                 <br/>
                 <div class="row">
                     <article class="flex-container" style="background-color: burlywood">
+                        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                            <div class="form-row">
+                                <input type="submit" value="Adatok láthatósági beállítása" name="public_data_set_btn">
+                            </div>
+                        </form>
                         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                             <div class="form-row">
                                 <input type="submit" value="Fénykép feltöltése" name="image_update_user_submit">
@@ -431,8 +486,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_subm
         <!-- Image remove -->
         <?php if (isset($_SESSION["userid"]) && isset($_SESSION["img_removed"]) && $_SESSION["img_removed"] == true) { ?>
             <div class="info-message">
-                <p><strong><?php echo $imgRemovedMessage;?></strong></p>
+                <p><strong><?php echo $imgRemovedMessage; ?></strong></p>
             </div>
+        <?php } ?>
+        <!-- Public data settings -->
+        <?php if (isset($_SESSION["userid"]) && isset($_SESSION["public_data_set"]) && $_SESSION["public_data_set"] == true) { ?>
+            <article class="form-container" style="margin-top: 10px">
+                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                    <div class="form-row">
+                        <div style="width: 80%; margin-left: auto; margin-right: auto;">
+                            <fieldset>
+                                <legend>Láthatóság</legend>
+                                <label><input type="checkbox" name="publics[]"
+                                              value="firstname" <?php if (isset($_POST['publics']) && in_array('firstname', $_POST['publics'])) echo 'checked'; ?>/>
+                                    Vezetéknév</label>
+                                <label><input type="checkbox" name="publics[]"
+                                              value="lastname" <?php if (isset($_POST['publics']) && in_array('lastname', $_POST['publics'])) echo 'checked'; ?>/>
+                                    Keresztnév</label>
+                                <label><input type="checkbox" name="publics[]"
+                                              value="email" <?php if (isset($_POST['publics']) && in_array('email', $_POST['publics'])) echo 'checked'; ?>/>
+                                    Email</label>
+                                <label><input type="checkbox" name="publics[]"
+                                              value="age" <?php if (isset($_POST['publics']) && in_array('age', $_POST['publics'])) echo 'checked'; ?>/>
+                                    Életkor</label>
+                                <label><input type="checkbox" name="publics[]"
+                                              value="role" <?php if (isset($_POST['publics']) && in_array('role', $_POST['publics'])) echo 'checked'; ?>/>
+                                    Szerepkör</label>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <br/>
+                    <!-- buttons -->
+                    <div class="form-row">
+                        <input type="submit" value="Mentés" name="public_data_set_submit">
+                    </div>
+                </form>
+                <?php if (isset($_SESSION["public_data_message"]) && $_SESSION["public_data_message"] == true) { ?>
+                    <div class="info-message">
+                        <?php echo $publicDataModifiedMessage; ?>
+                    </div>
+                <?php } ?>
+            </article>
         <?php } ?>
         <!-- Sign In -->
         <?php if (!isset($_SESSION["userid"])) { ?>
@@ -486,6 +580,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_subm
     <footer class="footer">
         <p>&copy; Autókereskedés 2022 | Minden jog fenntartva.
         </p>
+        <?php if (isset($_POST['publics'])) { ?>
+            <?php echo json_encode($_POST['publics']); ?>
+        <?php } ?>
     </footer>
 </main>
 

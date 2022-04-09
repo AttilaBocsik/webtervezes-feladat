@@ -61,6 +61,8 @@ include("scripts/Validation.php");
 $valid = new Validation();
 include("scripts/PublicData.php");
 $publicData = new PublicData();
+include("scripts/MessageArr.php");
+$messageArr = new MessageArr();
 
 session_start();
 $evaluation = "five";
@@ -86,6 +88,46 @@ function updateUserDataArray($email)
     foreach ($_SESSION["publicDataUsersArray"] as $item) {
         if ($item["email"] == $email) {
             return $item["public_list"];
+        }
+    }
+}
+
+?>
+<?php
+$messageTxt = $errorMessage = $addressee = $addresseeErr = $basicMessageErr = "";
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_submit"])) {
+    //message
+    if (empty($_POST["messageTxt"])) {
+        $errorMessage = "Kérem írjon üzenetet !";
+    } else {
+        $messageTxt = $valid->test_input($_POST["messageTxt"]);
+    }
+
+    //email
+    if (empty($_POST["addressee"])) {
+        $addresseeErr = "E-mail megadása kötelező !";
+    } else {
+        $addressee = $valid->test_input($_POST["addressee"]);
+        if (!filter_var($addressee, FILTER_VALIDATE_EMAIL)) {
+            $addresseeErr = "Érvénytelen e-mail formátum !";
+        }
+    }
+
+    $uj_uzenet = [
+        "email" => $_SESSION["userid"],
+        "message" => $messageTxt,
+        "addressee" => $addressee
+    ];
+
+    if ($errorMessage == "" && $addresseeErr == "") {
+        if (!$messageArr->isFile()) $messageArr->writingAllMessage([]);
+        $resIsEmail = $messageArr->isEmail($_SESSION["userid"]);
+        if (!$resIsEmail) {
+            $responseAddMessage = $messageArr->addUserData($uj_uzenet);
+            if (!$responseAddMessage) $basicMessageErr = "Sikertelen mentés !";
+        } else {
+            $responseModifiedMessage = $messageArr->modifyMessage($_SESSION["userid"], $uj_uzenet);
+            if ($responseModifiedMessage) $basicMessageErr = "Sikertelen mentés !";
         }
     }
 }
@@ -192,7 +234,7 @@ function updateUserDataArray($email)
                                 <th>Szerepkör</th>
                             </tr>
                             <?php foreach ($_SESSION["usersArray"] as $user) {
-                                $publicDataItems =  updateUserDataArray($user["email"]);
+                                $publicDataItems = updateUserDataArray($user["email"]);
                                 echo "<tr>";
                                 foreach ($user as $key => $value) {
                                     if (in_array($key, ["firstname", "lastname", "email", "age", "role", "img"])) {
@@ -200,24 +242,68 @@ function updateUserDataArray($email)
                                             if ($key == "img") {
                                                 echo '<td><img src="img/' . $valid->imgPahtSlice($value) . '" alt="Kép" style="width:auto;height:55px;"></td>';
                                             } else {
-                                                echo "<td>{$value}</td>";
+                                                echo "<td>{
+                        $value
+                        }</td>";
                                             }
                                         } else {
-                                            echo "<td>{$noData}</td>";
+                                            echo "<td>{
+                        $noData
+                        }</td>";
                                         }
                                     }
-
-                                    /*
-                                    if (in_array($key, $_SESSION["publicDataUsersArray"])) {
-                                        echo "<td>{$value}</td>";
-                                    } else {
-                                        echo "<td>{$noData}</td>";
-                                    }*/
                                 }
                                 echo "<tr>";
                             } ?>
                         </table>
                     </div>
+                </article>
+            <?php } ?>
+            <!-- Users message -->
+            <?php if (isset($_SESSION["userid"])) { ?>
+                <article class="form-container" style="margin-top: 10px; width: 80%;">
+                    <h4>Felhasználói üzenetek</h4>
+                    <hr/>
+                    <br/>
+                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                        <div class="form-row">
+                            <div class="form-col-25">
+                                <label for="email">Címzettek:</label>
+                            </div>
+                            <div class="form-col-75">
+                                <fieldset>
+                                    <legend>Felhasználói e-mail</legend>
+                                    <?php foreach ($_SESSION["usersArray"] as $actualUser) { ?>
+                                        <?php if ($actualUser["email"] != $_SESSION["userid"]) { ?>
+                                            <input type="radio" id="addressee" name="addressee"
+                                                   value="<?php echo $actualUser["email"]; ?>" <?php if (isset($addressee) && $addressee == '<?php echo $actualUser["email"]; ?>') echo "checked"; ?>>
+                                            <label for="addressee"><?php echo $actualUser["email"]; ?></label><br>
+                                        <?php } ?>
+                                    <?php } ?>
+                                </fieldset>
+                                <?php if ($addresseeErr) { ?>
+                                    <div class="error-message">
+                                        <?php echo $addresseeErr; ?>
+                                    </div>
+                                <?php } ?>
+                            </div>
+                            <div class="form-col-25">
+                                <label for="fname">Üzenet:</label>
+                            </div>
+                            <div class="form-col-75">
+                                <textarea id="messageTxt" name="messageTxt" rows="5" cols="60"></textarea>
+                                <?php if ($errorMessage) { ?>
+                                    <div class="error-message">
+                                        <?php echo $$errorMessage ?>
+                                    </div>
+                                <?php } ?>
+                            </div>
+                        </div>
+                        <!-- buttons -->
+                        <div class="form-row" style="margin-top: 10px">
+                            <input type="submit" value="Üzenet küldés" name="message_submit">
+                        </div>
+                    </form>
                 </article>
             <?php } ?>
         </article>

@@ -313,6 +313,15 @@ input[type=submit]:hover, input[type=reset]:hover {
     width: 50%;
 }
 
+.btn-container {
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 5px;
+    background-color: burlywood;
+    padding: 20px;
+    width: 80%;
+}
+
 .form-container h2 {
     text-align: center;
 }

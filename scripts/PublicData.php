@@ -11,6 +11,39 @@ class PublicData
 
     /**
      * DocBlock
+     * @return boolean
+     * @name("isFile")
+     */
+    public function isFile()
+    {
+        return file_exists($this->filename);
+    }
+
+    /**
+     * DocBlock
+     * @param $email
+     * @return boolean
+     * @name("isEmailUsers")
+     */
+    public function isEmailData($email)
+    {
+        $res = "";
+        $felhasznalok = $this->readAllDatas();
+        if (count($felhasznalok) == 0) return false;;
+        foreach ($felhasznalok as $felhasznalo) {
+            if (array_key_exists("email", $felhasznalo)) {
+                $res = array_search($email, $felhasznalo);
+            }
+        }
+        if ($res != null && $res == "email") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * DocBlock
      * @param $email
      * @return mixed || NULL
      * @name("getOneUserPublicList")
@@ -23,11 +56,30 @@ class PublicData
                 $key = array_search($email, $actualUserData);
                 if ($key === "email") {
                     return $actualUserData;
+                } else {
+                    return null;
                 }
             }
         }
+    }
 
-        return null;
+    /**
+     * DocBlock
+     * @param $input
+     * @return boolean
+     * @name("addUserData")
+     */
+    public function addUserData($input)
+    {
+        $usersDataArray = $this->readAllDatas();
+        $usersDataArrayBeforeCount = count($usersDataArray);
+        $usersDataArrayAfterCount = array_push($usersDataArray, $input);
+        $this->writingAllDatas($usersDataArray);
+        if ($usersDataArrayAfterCount > $usersDataArrayBeforeCount) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -45,19 +97,23 @@ class PublicData
         $userDataListsBeforeCount = count($userDataLists);
         //bekérjük a módosítani kívánt felhasználó adatait
         $actualUserData = $this->getOneUserPublicList($email);
-        //töröljük módosítani kívánt felhasználót a tömbből
-        if (($key = array_search($actualUserData, $userDataLists)) !== false) {
-            unset($userDataLists[$key]);
-        }
-        //berakjuk az új adatokat a felhasználóba
-        $aktualis_felhasznalo["public_list"] = $publicData;
-        //hozzáadjuk a módosított felhasználót a tömbhöz
-        $userDataListsAfterCount = array_push($userDataLists, $actualUserData);
-        //ki írjuk fájlba a tömböt
-        $this->writingAllDatas($userDataLists);
-        //menézzük, hogy a tömb elemek azonosak-e és visszatérünk igaz vagy hamis értékkel
-        if ($userDataListsAfterCount == $userDataListsBeforeCount) {
-            return true;
+        if ($actualUserData != null) {
+            //töröljük módosítani kívánt felhasználót a tömbből
+            if (($key = array_search($actualUserData, $userDataLists)) !== false) {
+                unset($userDataLists[$key]);
+            }
+            //berakjuk az új adatokat a felhasználóba
+            $actualUserData["public_list"] = $publicData;
+            //hozzáadjuk a módosított felhasználót a tömbhöz
+            $userDataListsAfterCount = array_push($userDataLists, $actualUserData);
+            //ki írjuk fájlba a tömböt
+            $this->writingAllDatas($userDataLists);
+            //menézzük, hogy a tömb elemek azonosak-e és visszatérünk igaz vagy hamis értékkel
+            if ($userDataListsAfterCount == $userDataListsBeforeCount) {
+                return true;
+            } else {
+                return false;
+            }
         } else {
             return false;
         }

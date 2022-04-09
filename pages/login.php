@@ -239,8 +239,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["image_remove_user_subm
 }
 ?>
 <?php
-$publicDataModifiedMessage = "";
-$publics = [];
+$publicDataModifiedMessage = $publicsErr = "";
+$publics = $uj_felhasznalo_adatok = [];
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_btn"])) {
     unset($_SESSION["modifyUser"]);
     unset($_SESSION["imgToUploadMessage"]);
@@ -249,27 +249,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_btn"])
     $_SESSION["public_data_message"] = false;
     $_SESSION["public_data_set"] = true;
 }
-$uj_felhasznalo_adatok = [];
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_submit"])) {
-    $_SESSION["public_data_set"] = false;
-    $_SESSION["public_data_message"] = true;
 
-    if (isset($_POST['publics'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_submit"])) {
+    if (!isset($_POST["publics"])) {
+        $publicsErr = "Kérem válasszon !";
+    } else {
         $uj_felhasznalo_adatok = [
             "email" => $_SESSION["userid"],
             "public_list" => $_POST["publics"],
         ];
-        $responsePublicData = $publicData->modifyUserData($_SESSION["userid"], $uj_felhasznalo_adatok);
-        if ($responsePublicData) {
-            $publicDataModifiedMessage = "Sikeres mentés !";
-        } else {
-            $publicDataModifiedMessage = "Sikertelen mentés !";
-        }
-    } else {
-        $publicDataModifiedMessage = "Sikertelen mentés !";
     }
 
-
+    if ($publicsErr == "") {
+        if (!$publicData->isFile()) $publicData->writingAllDatas([]);
+        $resIsEmail = $publicData->isEmailData($_SESSION["userid"]);
+        if (!$resIsEmail) {
+            $responseAddPublicData = $publicData->addUserData($uj_felhasznalo_adatok);
+            if ($responseAddPublicData) {
+                unset($_SESSION["public_data_set"]);
+            } else {
+                $publicsErr = "Sikertelen mentés !";
+            }
+        } else {
+            $responseModifiedPublicData = $publicData->modifyUserData($_SESSION["userid"], $_POST["publics"]);
+            if ($responseModifiedPublicData) {
+                unset($_SESSION["public_data_set"]);
+            } else {
+                $publicsErr = "Sikertelen mentés !";
+            }
+        }
+    }
 }
 
 
@@ -337,7 +346,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_submit
         </div>
         <!-- If Sign In -->
         <?php if (isset($_SESSION["userid"])) { ?>
-            <article class="form-container">
+            <article class="btn-container">
                 <h4>Felhasználói lehetőségek</h4>
                 <hr/>
                 <br/>
@@ -494,7 +503,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_submit
             <article class="form-container" style="margin-top: 10px">
                 <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                     <div class="form-row">
-                        <div style="width: 80%; margin-left: auto; margin-right: auto;">
+                        <div style="width: 100%; margin-left: auto; margin-right: auto;">
                             <fieldset>
                                 <legend>Láthatóság</legend>
                                 <label><input type="checkbox" name="publics[]"
@@ -512,6 +521,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_submit
                                 <label><input type="checkbox" name="publics[]"
                                               value="role" <?php if (isset($_POST['publics']) && in_array('role', $_POST['publics'])) echo 'checked'; ?>/>
                                     Szerepkör</label>
+                                <label><input type="checkbox" name="publics[]"
+                                              value="no" <?php if (isset($_POST['publics']) && in_array('no', $_POST['publics'])) echo 'checked'; ?>/>
+                                    Semelyik</label>
                             </fieldset>
                         </div>
                     </div>
@@ -520,12 +532,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_submit
                     <div class="form-row">
                         <input type="submit" value="Mentés" name="public_data_set_submit">
                     </div>
+                    <?php if ($publicsErr) { ?>
+                        <div class="error-message">
+                            <?php echo $publicsErr; ?>
+                        </div>
+                    <?php } ?>
                 </form>
-                <?php if (isset($_SESSION["public_data_message"]) && $_SESSION["public_data_message"] == true) { ?>
-                    <div class="info-message">
-                        <?php echo $publicDataModifiedMessage; ?>
-                    </div>
-                <?php } ?>
             </article>
         <?php } ?>
         <!-- Sign In -->
@@ -580,9 +592,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_submit
     <footer class="footer">
         <p>&copy; Autókereskedés 2022 | Minden jog fenntartva.
         </p>
-        <?php if (isset($_POST['publics'])) { ?>
-            <?php echo json_encode($_POST['publics']); ?>
-        <?php } ?>
     </footer>
 </main>
 

@@ -1,1 +1,2 @@
-a:2:{s:5:"email";s:20:"kiss.janos@gmail.com";s:11:"public_list";a:5:{i:0;s:9:"firstname";i:1;s:8:"lastname";i:2;s:5:"email";i:3;s:3:"age";i:4;s:4:"role";}}
+a:2:{s:5:"email";s:20:"kiss.janos@gmail.com";s:11:"public_list";a:6:{i:0;s:9:"firstname";i:1;s:8:"lastname";i:2;s:5:"email";i:3;s:3:"age";i:4;s:4:"role";i:5;s:3:"img";}}
+a:2:{s:5:"email";s:20:"nagy.janos@gmail.com";s:11:"public_list";a:5:{i:0;s:9:"firstname";i:1;s:8:"lastname";i:2;s:5:"email";i:3;s:3:"age";i:4;s:4:"role";}}

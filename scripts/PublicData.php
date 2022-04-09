@@ -29,7 +29,7 @@ class PublicData
     {
         $res = "";
         $felhasznalok = $this->readAllDatas();
-        if (count($felhasznalok) == 0) return false;;
+        if (count($felhasznalok) == 0) return false;
         foreach ($felhasznalok as $felhasznalo) {
             if (array_key_exists("email", $felhasznalo)) {
                 $res = array_search($email, $felhasznalo);
@@ -45,7 +45,7 @@ class PublicData
     /**
      * DocBlock
      * @param $email
-     * @return mixed || NULL
+     * @return mixed
      * @name("getOneUserPublicList")
      */
     public function getOneUserPublicList($email)
@@ -56,11 +56,10 @@ class PublicData
                 $key = array_search($email, $actualUserData);
                 if ($key === "email") {
                     return $actualUserData;
-                } else {
-                    return null;
                 }
             }
         }
+        return null;
     }
 
     /**
@@ -95,25 +94,21 @@ class PublicData
         $userDataLists = $this->readAllDatas();
         //megszámoljuk a tömb elemeit
         $userDataListsBeforeCount = count($userDataLists);
+        if ($userDataListsBeforeCount == 0) return false;
         //bekérjük a módosítani kívánt felhasználó adatait
         $actualUserData = $this->getOneUserPublicList($email);
-        if ($actualUserData != null) {
-            //töröljük módosítani kívánt felhasználót a tömbből
-            if (($key = array_search($actualUserData, $userDataLists)) !== false) {
-                unset($userDataLists[$key]);
-            }
-            //berakjuk az új adatokat a felhasználóba
-            $actualUserData["public_list"] = $publicData;
-            //hozzáadjuk a módosított felhasználót a tömbhöz
-            $userDataListsAfterCount = array_push($userDataLists, $actualUserData);
-            //ki írjuk fájlba a tömböt
-            $this->writingAllDatas($userDataLists);
-            //menézzük, hogy a tömb elemek azonosak-e és visszatérünk igaz vagy hamis értékkel
-            if ($userDataListsAfterCount == $userDataListsBeforeCount) {
-                return true;
-            } else {
-                return false;
-            }
+        if ($actualUserData == null) return false;
+        //töröljük módosítani kívánt felhasználót a tömbből
+        if (($key = array_search($actualUserData, $userDataLists)) !== false) {
+            unset($userDataLists[$key]);
+        }
+        //hozzáadjuk a módosított felhasználót a tömbhöz
+        $userDataListsAfterCount = array_push($userDataLists, $publicData);
+        //ki írjuk fájlba a tömböt
+        $this->writingAllDatas($userDataLists);
+        //menézzük, hogy a tömb elemek azonosak-e és visszatérünk igaz vagy hamis értékkel
+        if ($userDataListsAfterCount == $userDataListsBeforeCount) {
+            return true;
         } else {
             return false;
         }

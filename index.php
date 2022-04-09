@@ -59,9 +59,12 @@ include("scripts/Encryption.php");
 $encryption = new Encryption();
 include("scripts/Validation.php");
 $valid = new Validation();
+include("scripts/PublicData.php");
+$publicData = new PublicData();
 
 session_start();
 $evaluation = "five";
+$noData = "nem publikus";
 unset($_SESSION["evaluationMessage"]);
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
     session_unset();
@@ -75,8 +78,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["evaluation_submit"]) &
     $day = (time() + 3600) * 24; //1 nap
     $value = "Felhasználó: " . $_SESSION["userid"] . ". Videó értékelése: " . $evaluation . ". Értékelés dátuma: " . date('Y-m-d H:i:s', $_SESSION['time']);
     setcookie("Evaluation", $value, $day);
-
 }
+
+function updateUserDataArray($email)
+{
+    if (empty($_SESSION["publicDataUsersArray"])) return [];
+    foreach ($_SESSION["publicDataUsersArray"] as $item) {
+        if ($item["email"] == $email) {
+            return $item["public_list"];
+        }
+    }
+}
+
 ?>
 <main>
     <header class="header">
@@ -110,7 +123,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["evaluation_submit"]) &
                     Opel autók
                 </a>
             </li>
-            <li><a href="pages/login.php"><?php if (isset($_SESSION["userid"])) { echo "Felhasználó"; } else { echo "Bejelentkezés"; } ?></a></li>
+            <li><a href="pages/login.php"><?php if (isset($_SESSION["userid"])) {
+                        echo "Felhasználó";
+                    } else {
+                        echo "Bejelentkezés";
+                    } ?></a></li>
             <li><a href="pages/register.php">Regisztráció</a></li>
         </ul>
     </nav>
@@ -118,7 +135,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["evaluation_submit"]) &
         <div class="row advertisements-layer">
             <article class="flex-container">
                 <?php if (isset($_SESSION["user_img"]) && $valid->imgPahtSlice($_SESSION["user_img"]) != "") { ?>
-                    <img src="<?php echo "img/" . $valid->imgPahtSlice($_SESSION["user_img"]); ?>" alt="kép" style="width:auto;height:55px;">
+                    <img src="<?php echo "img/" . $valid->imgPahtSlice($_SESSION["user_img"]); ?>" alt="kép"
+                         style="width:auto;height:55px;">
                 <?php } else { ?>
                     <img src="img/no-image.jpg" alt="No image" style="width:auto;height:55px;">
                 <?php } ?>
@@ -158,6 +176,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["evaluation_submit"]) &
                     1083, Budapest
                 </address>
             </article>
+            <!-- Users data -->
+            <?php if (isset($_SESSION["isPublicFileExists"]) && $_SESSION["isPublicFileExists"] == true) { ?>
+                <article class="card-article">
+                    <h2>Felhasználók nyilvános adatai:</h2>
+                    <hr>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <tr>
+                                <th>Vezetéknév</th>
+                                <th>Kersztnév</th>
+                                <th>Email</th>
+                                <th>Életkor</th>
+                                <th>Profilkép</th>
+                                <th>Szerepkör</th>
+                            </tr>
+                            <?php foreach ($_SESSION["usersArray"] as $user) {
+                                $publicDataItems =  updateUserDataArray($user["email"]);
+                                echo "<tr>";
+                                foreach ($user as $key => $value) {
+                                    if (in_array($key, ["firstname", "lastname", "email", "age", "role", "img"])) {
+                                        if (in_array($key, $publicDataItems)) {
+                                            if ($key == "img") {
+                                                echo '<td><img src="img/' . $valid->imgPahtSlice($value) . '" alt="Kép" style="width:auto;height:55px;"></td>';
+                                            } else {
+                                                echo "<td>{$value}</td>";
+                                            }
+                                        } else {
+                                            echo "<td>{$noData}</td>";
+                                        }
+                                    }
+
+                                    /*
+                                    if (in_array($key, $_SESSION["publicDataUsersArray"])) {
+                                        echo "<td>{$value}</td>";
+                                    } else {
+                                        echo "<td>{$noData}</td>";
+                                    }*/
+                                }
+                                echo "<tr>";
+                            } ?>
+                        </table>
+                    </div>
+                </article>
+            <?php } ?>
         </article>
         <aside class="rightcolumn">
             <h2 style="text-align: center; color: #ddd">Ajánlott tesztek</h2>
@@ -237,6 +299,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["evaluation_submit"]) &
     </div>
     <footer class="footer">
         <p>&copy; Autókereskedés 2022 | Minden jog fenntartva.</p>
+        <?php if (isset($_SESSION["isPublicFileExists"])) { ?>
+            <p><?php echo json_encode($_SESSION["publicDataUsersArray"]) ?></p>
+        <?php } ?>
     </footer>
 </main>
 

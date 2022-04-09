@@ -79,6 +79,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signin_submit"])) {
                 $_SESSION["userid"] = $email;
                 $_SESSION['time'] = time();
                 $_SESSION["user_img"] = $user->getImgUser($email); //Load profile image
+                $_SESSION["isPublicFileExists"] = $publicData->isFile();
+                $_SESSION["publicDataUsersArray"] = $publicData->readAllDatas();
+                $_SESSION["usersArray"] = $user->readUsers();
             }
         }
     }
@@ -142,6 +145,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["modified_user_submit"]
         $hash = $encryption->pass_hash($pwd3);
         $actualUser = $user->getOneUser($_SESSION["userid"]);
         $responseModifiedUser = $user->modifyUser($_SESSION["userid"], $vezetek_nev, $kereszt_nev, $hash);
+        $_SESSION["publicDataUsersArray"] = $publicData->readAllDatas();
+        $_SESSION["usersArray"] = $user->readUsers();
         $vezetek_nev = $kereszt_nev = $pwd3 = $pwd4 = "";
         unset($_SESSION["modifyUser"]);
     }
@@ -206,6 +211,8 @@ if (isset($_FILES["imgToUpload"]) && basename($_FILES["imgToUpload"]["name"]) !=
                     $imgToUploadMessage = "Fájl feltöltés sikeres.";
                     unset($_SESSION["img_upload"]);
                     $_SESSION["user_img"] = $user->getImgUser($_SESSION["userid"]); //Load profile image
+                    $_SESSION["publicDataUsersArray"] = $publicData->readAllDatas();
+                    $_SESSION["usersArray"] = $user->readUsers();
                 }
             } else {
                 $_SESSION["imgToUploadMessage"] = false;
@@ -267,13 +274,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_submit
             $responseAddPublicData = $publicData->addUserData($uj_felhasznalo_adatok);
             if ($responseAddPublicData) {
                 unset($_SESSION["public_data_set"]);
+                $_SESSION["publicDataUsersArray"] = $publicData->readAllDatas();
+                $_SESSION["usersArray"] = $user->readUsers();
             } else {
                 $publicsErr = "Sikertelen mentés !";
             }
         } else {
-            $responseModifiedPublicData = $publicData->modifyUserData($_SESSION["userid"], $_POST["publics"]);
+            $responseModifiedPublicData = $publicData->modifyUserData($_SESSION["userid"], $uj_felhasznalo_adatok);
             if ($responseModifiedPublicData) {
                 unset($_SESSION["public_data_set"]);
+                $_SESSION["publicDataUsersArray"] = $publicData->readAllDatas();
+                $_SESSION["usersArray"] = $user->readUsers();
             } else {
                 $publicsErr = "Sikertelen mentés !";
             }
@@ -521,6 +532,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["public_data_set_submit
                                 <label><input type="checkbox" name="publics[]"
                                               value="role" <?php if (isset($_POST['publics']) && in_array('role', $_POST['publics'])) echo 'checked'; ?>/>
                                     Szerepkör</label>
+                                <label><input type="checkbox" name="publics[]"
+                                              value="img" <?php if (isset($_POST['publics']) && in_array('img', $_POST['publics'])) echo 'checked'; ?>/>
+                                    Kép</label>
                                 <label><input type="checkbox" name="publics[]"
                                               value="no" <?php if (isset($_POST['publics']) && in_array('no', $_POST['publics'])) echo 'checked'; ?>/>
                                     Semelyik</label>

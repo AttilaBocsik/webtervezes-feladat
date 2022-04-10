@@ -36,6 +36,8 @@ include("../scripts/Validation.php");
 $valid = new Validation();
 include("../scripts/PublicData.php");
 $publicData = new PublicData();
+include("../scripts/MessageArr.php");
+$messageArr = new MessageArr();
 
 $emailErr = $passwordErr = $userMessage = $passwordMessage = $email = $pwd = "";
 $selectedAction = "";

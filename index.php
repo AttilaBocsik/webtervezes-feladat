@@ -124,13 +124,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_submit"])) {
         $resIsEmail = $messageArr->isEmail($_SESSION["userid"]);
         if (!$resIsEmail) {
             $responseAddMessage = $messageArr->addUserData($uj_uzenet);
+            $_SESSION["usersMessage"] = $messageArr->readAllMessage();
             if (!$responseAddMessage) $basicMessageErr = "Sikertelen mentés !";
         } else {
             $responseModifiedMessage = $messageArr->modifyMessage($_SESSION["userid"], $uj_uzenet);
+            $_SESSION["usersMessage"] = $messageArr->readAllMessage();
             if ($responseModifiedMessage) $basicMessageErr = "Sikertelen mentés !";
         }
     }
 }
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_update_submit"])) {
+    $_SESSION["usersMessage"] = $messageArr->readAllMessage();
+}
+
 
 ?>
 <main>
@@ -242,14 +249,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_submit"])) {
                                             if ($key == "img") {
                                                 echo '<td><img src="img/' . $valid->imgPahtSlice($value) . '" alt="Kép" style="width:auto;height:55px;"></td>';
                                             } else {
-                                                echo "<td>{
-                        $value
-                        }</td>";
+                                                echo "<td>{$value}</td>";
                                             }
                                         } else {
-                                            echo "<td>{
-                        $noData
-                        }</td>";
+                                            echo "<td>{$noData}</td>";
                                         }
                                     }
                                 }
@@ -262,13 +265,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_submit"])) {
             <!-- Users message -->
             <?php if (isset($_SESSION["userid"])) { ?>
                 <article class="form-container" style="margin-top: 10px; width: 80%;">
-                    <h4>Felhasználói üzenetek</h4>
+                    <h4>Beérkező üzenetek:</h4>
+                    <hr/>
+                    <br/>
+                    <?php if (isset($_SESSION["usersMessage"])) {
+                        foreach ($_SESSION["usersMessage"] as $actualUser) { ?>
+                            <?php if ($actualUser["email"] != $_SESSION["userid"]) { ?>
+                                <p>Küldő: <?php echo $actualUser["addressee"]; ?></p>
+                                <p>Üzenet: <?php echo $actualUser["message"]; ?></p>
+                            <?php } ?>
+                        <?php }
+                    } ?>
+                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                        <div class="form-row">
+                            <input type="submit" value="Üzenetek lekérdezése" name="message_update_submit">
+                        </div>
+                    </form>
+                </article>
+                <article class="form-container" style="margin-top: 10px; width: 80%;">
+                    <h4>Üzenet küldése:</h4>
                     <hr/>
                     <br/>
                     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                         <div class="form-row">
                             <div class="form-col-25">
-                                <label for="email">Címzettek:</label>
+                                <label for="email">Címzet:</label>
                             </div>
                             <div class="form-col-75">
                                 <fieldset>
@@ -385,9 +406,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_submit"])) {
     </div>
     <footer class="footer">
         <p>&copy; Autókereskedés 2022 | Minden jog fenntartva.</p>
-        <?php if (isset($_SESSION["isPublicFileExists"])) { ?>
-            <p><?php echo json_encode($_SESSION["publicDataUsersArray"]) ?></p>
-        <?php } ?>
     </footer>
 </main>
 

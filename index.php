@@ -90,6 +90,7 @@ function updateUserDataArray($email)
             return $item["public_list"];
         }
     }
+    return [];
 }
 
 ?>
@@ -135,6 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_submit"])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_update_submit"])) {
+    if (!$messageArr->isFile()) $messageArr->writingAllMessage([]);
     $_SESSION["usersMessage"] = $messageArr->readAllMessage();
 }
 
@@ -295,7 +297,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_update_submit"
                                 <fieldset>
                                     <legend>Felhasználói e-mail</legend>
                                     <?php foreach ($_SESSION["usersArray"] as $actualUser) { ?>
-                                        <?php if ($actualUser["email"] != $_SESSION["userid"]) { ?>
+                                        <?php if (isset($actualUser["email"]) && $actualUser["email"] != $_SESSION["userid"]) { ?>
                                             <input type="radio" id="addressee" name="addressee"
                                                    value="<?php echo $actualUser["email"]; ?>" <?php if (isset($addressee) && $addressee == '<?php echo $actualUser["email"]; ?>') echo "checked"; ?>>
                                             <label for="addressee"><?php echo $actualUser["email"]; ?></label><br>

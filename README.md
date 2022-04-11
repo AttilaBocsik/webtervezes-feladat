@@ -15,3 +15,5 @@
 ### Admin szerepkör
 - Email: nagy.janos@gmail.com
 - Jelszó: NagyJanos2022*
+
+Admin jogú felhasználó csak akkor regisztrálható, ha valaki be van jelentkezve.

@@ -251,10 +251,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_update_submit"
                                             if ($key == "img") {
                                                 echo '<td><img src="img/' . $valid->imgPahtSlice($value) . '" alt="Kép" style="width:auto;height:55px;"></td>';
                                             } else {
-                                                echo "<td>{$value}</td>";
+                                                echo "<td>$value</td>";
                                             }
                                         } else {
-                                            echo "<td>{$noData}</td>";
+                                            echo "<td>$noData</td>";
                                         }
                                     }
                                 }
@@ -273,7 +273,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_update_submit"
                     <?php if (isset($_SESSION["usersMessage"])) {
                         foreach ($_SESSION["usersMessage"] as $actualUser) { ?>
                             <?php if ($actualUser["email"] != $_SESSION["userid"]) { ?>
-                                <p>Küldő: <?php echo $actualUser["addressee"]; ?></p>
+                                <p>Küldő: <?php echo $actualUser["email"]; ?></p>
                                 <p>Üzenet: <?php echo $actualUser["message"]; ?></p>
                             <?php } ?>
                         <?php }
@@ -311,7 +311,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_update_submit"
                                 <?php } ?>
                             </div>
                             <div class="form-col-25">
-                                <label for="fname">Üzenet:</label>
+                                <label for="messageTxt">Üzenet:</label>
                             </div>
                             <div class="form-col-75">
                                 <textarea id="messageTxt" name="messageTxt" rows="5" cols="60"></textarea>

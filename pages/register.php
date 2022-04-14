@@ -23,10 +23,6 @@
             padding: 6px;
             margin: 2px;
         }
-
-        .profil-img {
-            margin-left: 10px;
-        }
     </style>
 </head>
 <body>
@@ -145,7 +141,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["form_submit"])) {
         $responseIsEmailUsers = $user->isEmailUsers($email);
         if (!$responseIsEmailUsers) {
             $responseAddUser = $user->addUser($uj_felhasznalo);
-            $vezetek_nev = $kereszt_nev = $email = $fav_language = $pwd = $pwd2 =
+            $vezetek_nev = $kereszt_nev = $email = $fav_language = $pwd = $pwd2 = "";
             $age = $registerday = $img_name = "";
             $fav_role = "";
             $allowed = "true";

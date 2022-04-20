@@ -1,2 +1,3 @@
 a:3:{s:5:"email";s:20:"nagy.janos@gmail.com";s:7:"message";s:17:"Hello Kiss Janos.";s:9:"addressee";s:20:"kiss.janos@gmail.com";}
 a:3:{s:5:"email";s:20:"kiss.janos@gmail.com";s:7:"message";s:18:"Hello Nagy János.";s:9:"addressee";s:20:"nagy.janos@gmail.com";}
+a:3:{s:5:"email";s:19:"pal.teszt@gmail.com";s:7:"message";s:16:"Hello Kiss Janos";s:9:"addressee";s:20:"kiss.janos@gmail.com";}

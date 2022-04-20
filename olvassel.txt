@@ -1,0 +1,11 @@
+## Teszt felhasználó belépési adatai:
+### Felhaszálói szerepkör
+- Email: kiss.janos@gmail.com
+- Jelszó: KissJanos2022*
+
+### Admin szerepkör
+- Email: nagy.janos@gmail.com
+- Jelszó: NagyJanos2022*
+
+Admin jogú felhasználó csak akkor regisztrálható, ha valaki be van jelentkezve.
+Egyébbként user jogot kap automatikusan.

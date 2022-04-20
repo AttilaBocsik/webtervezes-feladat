@@ -13,7 +13,7 @@ class Validation
      * @return string
      * @name("text_validation")
      */
-    public function text_validation($text)
+    public function textValidation($text)
     {
         if (empty($text)) {
             return "A mező nem lehet üres!";
@@ -69,11 +69,11 @@ class Validation
 
     /**
      * DocBlock
-     * @param $data
+     * @param $path
      * @return string
-     * @name("imgPahtSlit")
+     * @name("imgPahthlit")
      */
-    public function imgPahtSlice($path)
+    public function imgPathSlice($path)
     {
         if($path == null || $path == "") return "";
         $slicePath = explode("/", $path);

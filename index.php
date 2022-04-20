@@ -185,8 +185,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_update_submit"
     <?php if (isset($_SESSION["userid"])) { ?>
         <div class="row advertisements-layer">
             <article class="flex-container">
-                <?php if (isset($_SESSION["user_img"]) && $valid->imgPahtSlice($_SESSION["user_img"]) != "") { ?>
-                    <img src="<?php echo "img/" . $valid->imgPahtSlice($_SESSION["user_img"]); ?>" alt="kép"
+                <?php if (isset($_SESSION["user_img"]) && $valid->imgPathSlice($_SESSION["user_img"]) != "") { ?>
+                    <img src="<?php echo "img/" . $valid->imgPathSlice($_SESSION["user_img"]); ?>" alt="kép"
                          style="width:auto;height:55px;">
                 <?php } else { ?>
                     <img src="img/no-image.jpg" alt="No image" style="width:auto;height:55px;">
@@ -249,7 +249,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message_update_submit"
                                     if (in_array($key, ["firstname", "lastname", "email", "age", "role", "img"])) {
                                         if (in_array($key, $publicDataItems)) {
                                             if ($key == "img") {
-                                                echo '<td><img src="img/' . $valid->imgPahtSlice($value) . '" alt="Kép" style="width:auto;height:55px;"></td>';
+                                                echo '<td><img src="img/' . $valid->imgPathSlice($value) . '" alt="Kép" style="width:auto;height:55px;"></td>';
                                             } else {
                                                 echo "<td>$value</td>";
                                             }

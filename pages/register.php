@@ -197,7 +197,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signout_submit"])) {
     <?php if (isset($_SESSION["userid"])) { ?>
         <div class="row advertisements-layer">
             <article class="flex-container">
-                <?php if (isset($_SESSION["user_img"]) && $valid->imgPahtSlice($_SESSION["user_img"]) != "") { ?>
+                <?php if (isset($_SESSION["user_img"]) && $valid->imgPathSlice($_SESSION["user_img"]) != "") { ?>
                     <img src="<?php echo $_SESSION["user_img"]; ?>" alt="kép" style="width:auto;height:55px;">
                 <?php } else { ?>
                     <img src="../img/no-image.jpg" alt="No image" style="width:auto;height:55px;">
